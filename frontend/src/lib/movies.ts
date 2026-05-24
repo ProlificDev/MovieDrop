@@ -29,6 +29,16 @@ export function mapDbMovieToFrontendMovie(dbMovie: any): Movie {
     ? dbMovie.genres.map((g: any) => typeof g === 'string' ? g : g.name)
     : [];
 
+  // Convert YouTube watch URL -> embed URL for iframe compatibility
+  const rawTrailer: string | undefined = dbMovie.trailer_url || undefined;
+  let trailerUrl: string | undefined;
+  if (rawTrailer) {
+    const watchMatch = rawTrailer.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    trailerUrl = watchMatch
+      ? `https://www.youtube.com/embed/${watchMatch[1]}?rel=0&showinfo=0`
+      : rawTrailer;
+  }
+
   return {
     id: Number(dbMovie.id),
     title: dbMovie.title || 'Untitled',
@@ -38,10 +48,10 @@ export function mapDbMovieToFrontendMovie(dbMovie: any): Movie {
     overview: dbMovie.overview || '',
     rating: dbMovie.vote_average ? Number(dbMovie.vote_average) : 0,
     genres: genres.length > 0 ? genres : ['Drama'],
-    runtime: 120, // default since not stored in db
+    runtime: 120,
     cast,
     category: dbMovie.release_date && new Date(dbMovie.release_date) > new Date() ? 'upcoming' : 'now-playing',
-    trailerUrl: dbMovie.trailer_url || undefined,
+    trailerUrl,
   };
 }
 

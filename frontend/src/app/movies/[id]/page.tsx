@@ -21,6 +21,7 @@ export default function MovieDetailPage({
   const [isLoading, setIsLoading] = useState(true);
   const [isWatchlisted, setIsWatchlisted] = useState(false);
   const [isNotified, setIsNotified] = useState(false);
+  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
 
   useEffect(() => {
     async function loadMovieData() {
@@ -136,9 +137,12 @@ export default function MovieDetailPage({
 
                 {/* Main Action Buttons */}
                 <div className="flex flex-wrap gap-4 items-center">
-                  <button className="btn-neon-pink flex items-center gap-2">
+                  <button
+                    onClick={() => movie.trailerUrl && setIsTrailerOpen(true)}
+                    className={`btn-neon-pink flex items-center gap-2 ${!movie.trailerUrl ? 'opacity-40 cursor-not-allowed' : ''}`}
+                  >
                     <Play size={18} fill="currentColor" />
-                    Watch Trailer
+                    {movie.trailerUrl ? 'Watch Trailer' : 'No Trailer Available'}
                   </button>
                   
                   <button
@@ -184,22 +188,35 @@ export default function MovieDetailPage({
           </p>
         </section>
 
-        {/* Video Player Embed */}
-        {movie.trailerUrl && (
-          <section className="mb-16">
-            <h2 className="text-2xl md:text-3xl font-black text-white mb-6 tracking-tight">
-              Official Trailer
-            </h2>
-            <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/[0.08] bg-[#06040d]">
-              <iframe
-                src={movie.trailerUrl}
-                title={`${movie.title} Trailer`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full opacity-90 hover:opacity-100 transition-opacity duration-300"
-              />
+        {/* Trailer Modal */}
+        {isTrailerOpen && movie.trailerUrl && (
+          <div
+            className="fixed inset-0 z-[999] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            onClick={() => setIsTrailerOpen(false)}
+          >
+            <div
+              className="relative w-full max-w-5xl mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setIsTrailerOpen(false)}
+                className="absolute -top-12 right-0 text-white/70 hover:text-white text-sm font-bold flex items-center gap-2 transition-colors"
+              >
+                <span className="text-2xl leading-none">&times;</span> Close
+              </button>
+              {/* YouTube Embed */}
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_0_80px_rgba(255,0,110,0.2)] border border-white/10">
+                <iframe
+                  src={`${movie.trailerUrl}&autoplay=1`}
+                  title={`${movie.title} Trailer`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
             </div>
-          </section>
+          </div>
         )}
 
         {/* Glass Cast Cards Grid */}
