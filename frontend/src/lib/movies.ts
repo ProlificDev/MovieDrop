@@ -50,7 +50,7 @@ export function mapDbMovieToFrontendMovie(dbMovie: any): Movie {
     genres: genres.length > 0 ? genres : ['Drama'],
     runtime: 120,
     cast,
-    category: dbMovie.release_date && new Date(dbMovie.release_date) > new Date() ? 'upcoming' : 'now-playing',
+    category: dbMovie.category || 'upcoming',
     trailerUrl,
   };
 }
@@ -58,24 +58,19 @@ export function mapDbMovieToFrontendMovie(dbMovie: any): Movie {
 export async function getLiveMoviesByCategory(category: string): Promise<Movie[]> {
   try {
     let query = supabase.from('movies').select('*');
-    const now = new Date().toISOString().split('T')[0];
 
-    // Map frontend categories to database queries
+    // Filter by the category column which is populated by the sync pipeline
     if (category === 'upcoming') {
-      // release date in the future
-      query = query.gte('release_date', now).order('release_date', { ascending: true });
+      query = query.eq('category', 'upcoming').order('release_date', { ascending: true });
     } else if (category === 'now-playing') {
-      // release date in the past
-      query = query.lt('release_date', now).order('release_date', { ascending: false });
+      query = query.eq('category', 'now-playing').order('release_date', { ascending: false });
     } else if (category === 'popular') {
-      // sorted by popularity
-      query = query.order('popularity', { ascending: false });
+      query = query.eq('category', 'popular').order('popularity', { ascending: false });
     } else if (category === 'top-rated') {
-      // sorted by rating
-      query = query.order('vote_average', { ascending: false });
+      query = query.eq('category', 'top-rated').order('vote_average', { ascending: false });
     } else {
-      // fallback
-      query = query.order('release_date', { ascending: false });
+      // fallback — return all
+      query = query.order('popularity', { ascending: false });
     }
 
     const { data, error } = await query.limit(20);

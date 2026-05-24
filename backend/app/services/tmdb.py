@@ -29,7 +29,19 @@ class TMDBClient:
         Query upcoming theatrical movies (paginated).
         Automatically retries on rate limits (429) or network issues.
         """
-        url = f"{self.base_url}/movie/upcoming"
+        return await self.get_movies_by_endpoint("upcoming", page=page, region=region)
+
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        reraise=True
+    )
+    async def get_movies_by_endpoint(self, endpoint: str, page: int = 1, region: str = "US") -> Dict[str, Any]:
+        """
+        Generic method to query any TMDB movie list endpoint.
+        Supports: upcoming, now_playing, popular, top_rated.
+        """
+        url = f"{self.base_url}/movie/{endpoint}"
         params = {
             "api_key": self.api_key,
             "language": "en-US",
