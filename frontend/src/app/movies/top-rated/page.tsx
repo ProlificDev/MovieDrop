@@ -1,13 +1,13 @@
 import CategoryPage from '@/components/CategoryPage';
-import { getMoviesByCategory } from '@/lib/mockMovies';
+import { getLiveMoviesByCategory } from '@/lib/movies';
 
 export const metadata = {
   title: 'Top Rated Movies | MovieDrop',
   description: 'Browse the highest rated movies.',
 };
 
-export default function TopRatedPage() {
-  const topRatedMovies = getMoviesByCategory('top-rated');
+export default async function TopRatedPage() {
+  const topRatedMovies = await getLiveMoviesByCategory('top-rated');
 
   return <CategoryPage title="Top Rated" movies={topRatedMovies} />;
 }

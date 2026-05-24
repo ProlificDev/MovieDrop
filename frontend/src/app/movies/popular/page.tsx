@@ -1,13 +1,13 @@
 import CategoryPage from '@/components/CategoryPage';
-import { getMoviesByCategory } from '@/lib/mockMovies';
+import { getLiveMoviesByCategory } from '@/lib/movies';
 
 export const metadata = {
   title: 'Popular Movies | MovieDrop',
   description: 'Browse the most popular movies.',
 };
 
-export default function PopularPage() {
-  const popularMovies = getMoviesByCategory('popular');
+export default async function PopularPage() {
+  const popularMovies = await getLiveMoviesByCategory('popular');
 
   return <CategoryPage title="Popular" movies={popularMovies} />;
 }

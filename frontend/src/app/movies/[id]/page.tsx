@@ -1,13 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
-import { Heart, Clock, Calendar, Star, Bell, Play } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Heart, Clock, Calendar, Star, Bell, Play, Loader2 } from 'lucide-react';
 import ScrollableRow from '@/components/ScrollableRow';
-import {
-  getMovieById,
-  getRelatedMovies,
-} from '@/lib/mockMovies';
+import { Movie } from '@/lib/mockMovies';
+import { getLiveMovieById, getLiveRelatedMovies } from '@/lib/movies';
 import { notFound } from 'next/navigation';
 
 interface MovieDetailPageProps {
@@ -18,10 +16,38 @@ export default function MovieDetailPage({
   params,
 }: MovieDetailPageProps) {
   const movieId = parseInt(params.id);
-  const movie = getMovieById(movieId);
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [relatedMovies, setRelatedMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isWatchlisted, setIsWatchlisted] = useState(false);
   const [isNotified, setIsNotified] = useState(false);
-  const relatedMovies = getRelatedMovies(movieId);
+
+  useEffect(() => {
+    async function loadMovieData() {
+      try {
+        const liveMovie = await getLiveMovieById(movieId);
+        if (liveMovie) {
+          setMovie(liveMovie);
+          const liveRelated = await getLiveRelatedMovies(movieId);
+          setRelatedMovies(liveRelated);
+        }
+      } catch (err) {
+        console.error('Error loading movie details:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadMovieData();
+  }, [movieId]);
+
+  if (isLoading) {
+    return (
+      <div className="bg-[#06040d] min-h-screen text-[#f1ecfa] flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="animate-spin text-neon-pink" size={48} />
+        <p className="text-gray-400 font-semibold tracking-wide animate-pulse">Dimming the lights...</p>
+      </div>
+    );
+  }
 
   if (!movie) {
     notFound();

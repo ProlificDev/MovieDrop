@@ -1,19 +1,53 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import MovieCard from '@/components/MovieCard';
 import ScrollableRow from '@/components/ScrollableRow';
-import {
-  mockMovies,
-  getMoviesByCategory,
-} from '@/lib/mockMovies';
+import { Movie } from '@/lib/mockMovies';
+import { getLiveMoviesByCategory } from '@/lib/movies';
+import { Loader2 } from 'lucide-react';
 
 export default function Home() {
-  // Featured movie (first upcoming movie)
-  const featuredMovie = getMoviesByCategory('upcoming')[0];
-  const upcomingMovies = getMoviesByCategory('upcoming');
-  const nowPlayingMovies = getMoviesByCategory('now-playing');
-  const popularMovies = getMoviesByCategory('popular');
-  const topRatedMovies = getMoviesByCategory('top-rated');
+  const [upcomingMovies, setUpcomingMovies] = useState<Movie[]>([]);
+  const [nowPlayingMovies, setNowPlayingMovies] = useState<Movie[]>([]);
+  const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
+  const [topRatedMovies, setTopRatedMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadAllMovies() {
+      try {
+        const [upcoming, nowPlaying, popular, topRated] = await Promise.all([
+          getLiveMoviesByCategory('upcoming'),
+          getLiveMoviesByCategory('now-playing'),
+          getLiveMoviesByCategory('popular'),
+          getLiveMoviesByCategory('top-rated'),
+        ]);
+
+        setUpcomingMovies(upcoming);
+        setNowPlayingMovies(nowPlaying);
+        setPopularMovies(popular);
+        setTopRatedMovies(topRated);
+      } catch (err) {
+        console.error('Error loading home page movies:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadAllMovies();
+  }, []);
+
+  const featuredMovie = upcomingMovies[0] || nowPlayingMovies[0] || popularMovies[0];
+
+  if (isLoading) {
+    return (
+      <div className="bg-[#06040d] min-h-screen text-[#f1ecfa] flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="animate-spin text-neon-pink" size={48} />
+        <p className="text-gray-400 font-semibold tracking-wide animate-pulse">Dimming the lights...</p>
+      </div>
+    );
+  }
 
   return (
     <>
