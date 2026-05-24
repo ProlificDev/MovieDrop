@@ -1,0 +1,85 @@
+import logging
+from fastapi import APIRouter, HTTPException, BackgroundTasks
+from celery.result import AsyncResult
+from app.services.sync import SyncService
+from app.tasks.scheduler import sync_upcoming_movies
+
+logger = logging.getLogger("cinepulse.api.sync")
+router = APIRouter(prefix="/sync", tags=["Pipeline Sync"])
+
+@router.post("/trigger", status_code=202)
+async def trigger_async_sync():
+    """
+    Manually dispatch the movie database sync to the Celery background worker queue.
+    Returns the task ID instantly without blocking the caller.
+    """
+    try:
+        # Send task to Celery queue out-of-band
+        task = sync_upcoming_movies.delay()
+        logger.info(f"Background task triggered manually via API. Task ID: {task.id}")
+        return {
+            "status": "queued",
+            "task_id": task.id,
+            "message": "MoviePulse upcoming movie database sync dispatched to Celery background queue."
+        }
+    except Exception as e:
+        logger.error(f"Failed to queue Celery sync task: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to queue sync job: {str(e)}"
+        )
+
+@router.get("/status/{task_id}")
+async def get_sync_status(task_id: str):
+    """
+    Inspect the progress or result of a previously triggered Celery sync job.
+    """
+    try:
+        task_result = AsyncResult(task_id)
+        response = {
+            "task_id": task_id,
+            "status": task_result.status, # e.g. PENDING, STARTED, SUCCESS, FAILURE
+            "result": None,
+            "error": None
+        }
+
+        if task_result.status == "SUCCESS":
+            response["result"] = task_result.result
+        elif task_result.status == "FAILURE":
+            response["error"] = str(task_result.info)
+            
+        return response
+    except Exception as e:
+        logger.error(f"Failed to query task status for {task_id}: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch task status: {str(e)}"
+        )
+
+@router.post("/trigger-sync-now")
+async def trigger_synchronous_sync(max_pages: int = 2):
+    """
+    Runs the synchronization pipeline synchronously in the active request thread.
+    Useful for local testing and manual debugging without requiring a running Celery worker.
+    """
+    logger.info(f"Manual synchronous database sync triggered. Fetching top {max_pages} pages.")
+    try:
+        sync_service = SyncService()
+        # Run sync synchronously in active thread
+        result = await sync_service.sync_pipeline(max_pages=max_pages)
+        
+        if result.get("status") == "failed":
+            raise HTTPException(
+                status_code=502,
+                detail={"message": "Sync execution encountered errors.", "details": result}
+            )
+            
+        return result
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
+        logger.error(f"Synchronous sync failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Synchronous database sync execution crashed: {str(e)}"
+        )

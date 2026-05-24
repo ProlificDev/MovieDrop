@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --font-plus-jakarta: 'Plus Jakarta Sans', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-plus-jakarta);
+  background-color: #06040d;
+  color: #f1ecfa;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 0, 110, 0.4);
+}
+
+/* Scrollbar Hide Utility */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Selection */
+::selection {
+  background-color: rgba(255, 0, 110, 0.45);
+  color: #ffffff;
+}
+
+/* Background Glowing Animated Blobs */
+@keyframes float-blob-1 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.15); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes float-blob-2 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(-40px, 60px) scale(0.85); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob-slow-1 {
+  animation: float-blob-1 25s infinite ease-in-out;
+}
+
+.animate-blob-slow-2 {
+  animation: float-blob-2 30s infinite ease-in-out;
+}
+
+/* Smooth transitions */
+@layer components {
+  .transition-smooth {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .glass-panel {
+    @apply bg-white/[0.03] border border-white/[0.08] backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+  }
+
+  .glass-card {
+    @apply bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.15] backdrop-blur-lg rounded-2xl transition-smooth shadow-lg;
+  }
+
+  .btn-neon-pink {
+    @apply bg-gradient-to-r from-neon-pink via-neon-magenta to-neon-purple hover:shadow-[0_0_25px_rgba(255,0,110,0.55)] hover:scale-105 active:scale-95 text-white font-extrabold py-3 px-8 rounded-xl transition-smooth;
+  }
+
+  .btn-neon-outline {
+    @apply bg-transparent border-2 border-neon-pink hover:bg-neon-pink/15 hover:shadow-[0_0_20px_rgba(255,0,110,0.3)] hover:scale-105 active:scale-95 text-white font-extrabold py-3 px-8 rounded-xl transition-smooth;
+  }
+
+  .text-neon-gradient {
+    @apply bg-gradient-to-r from-neon-pink via-neon-magenta to-neon-teal bg-clip-text text-transparent font-extrabold;
+  }
+}
+
