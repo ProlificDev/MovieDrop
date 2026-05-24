@@ -2,7 +2,7 @@ import CategoryPage from '@/components/CategoryPage';
 import { getMoviesByCategory } from '@/lib/mockMovies';
 
 export const metadata = {
-  title: 'Popular Movies | Cinepulse',
+  title: 'Popular Movies | MovieDrop',
   description: 'Browse the most popular movies.',
 };
 

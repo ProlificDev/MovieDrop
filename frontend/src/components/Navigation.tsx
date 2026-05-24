@@ -24,7 +24,7 @@ export default function Navigation() {
             href="/"
             className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-neon-pink via-neon-magenta to-neon-teal bg-clip-text text-transparent hover:opacity-90 hover:scale-105 active:scale-95 transition-all duration-300"
           >
-            Cinepulse
+            MovieDrop
           </Link>
 
           {/* Desktop Navigation */}

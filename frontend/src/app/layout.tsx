@@ -4,10 +4,10 @@ import './globals.css';
 import Navigation from '@/components/Navigation';
 
 export const metadata: Metadata = {
-  title: 'Cinepulse - Movie Notification App',
+  title: 'MovieDrop - Movie Notification App',
   description: 'Never miss a movie launch. Curate your watchlist and receive timely email and device push notifications for upcoming releases.',
   keywords: 'movies, notifications, watchlist, releases, cinema',
-  authors: [{ name: 'Cinepulse Team' }],
+  authors: [{ name: 'MovieDrop Team' }],
   viewport: 'width=device-width, initial-scale=1.0',
 };
 

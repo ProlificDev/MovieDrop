@@ -20,7 +20,7 @@ async def trigger_async_sync():
         return {
             "status": "queued",
             "task_id": task.id,
-            "message": "MoviePulse upcoming movie database sync dispatched to Celery background queue."
+            "message": "MovieDrop upcoming movie database sync dispatched to Celery background queue."
         }
     except Exception as e:
         logger.error(f"Failed to queue Celery sync task: {str(e)}")

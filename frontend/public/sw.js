@@ -17,7 +17,7 @@ self.addEventListener('push', function(event) {
       };
 
       event.waitUntil(
-        self.registration.showNotification(payload.title || 'MoviePulse Alert', options)
+        self.registration.showNotification(payload.title || 'MovieDrop Alert', options)
       );
     } catch (e) {
       // Handle plain-text notification payload if not JSON
@@ -29,7 +29,7 @@ self.addEventListener('push', function(event) {
       };
 
       event.waitUntil(
-        self.registration.showNotification('MoviePulse', options)
+        self.registration.showNotification('MovieDrop', options)
       );
     }
   }

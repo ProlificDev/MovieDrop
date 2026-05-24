@@ -2,7 +2,7 @@ import CategoryPage from '@/components/CategoryPage';
 import { getMoviesByCategory } from '@/lib/mockMovies';
 
 export const metadata = {
-  title: 'Now Playing Movies | Cinepulse',
+  title: 'Now Playing Movies | MovieDrop',
   description: 'Browse all movies currently playing in theaters.',
 };
 

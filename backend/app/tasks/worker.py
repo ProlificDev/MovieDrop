@@ -3,7 +3,7 @@ from app.main import settings
 
 # Initialize Celery app pointing to Upstash Redis as both broker and result backend
 celery_app = Celery(
-    "moviepulse_tasks",
+    "moviedrop_tasks",
     broker=settings.REDIS_URL,
     backend=settings.REDIS_URL
 )

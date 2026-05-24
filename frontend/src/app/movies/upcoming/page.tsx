@@ -2,7 +2,7 @@ import CategoryPage from '@/components/CategoryPage';
 import { getMoviesByCategory } from '@/lib/mockMovies';
 
 export const metadata = {
-  title: 'Upcoming Movies | Cinepulse',
+  title: 'Upcoming Movies | MovieDrop',
   description: 'Browse all upcoming movie releases.',
 };
 

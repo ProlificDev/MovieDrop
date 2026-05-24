@@ -35,7 +35,7 @@ class Settings(BaseSettings):
 settings = Settings()
 
 app = FastAPI(
-    title="MoviePulse API",
+    title="MovieDrop API",
     description="Asynchronous Movie Watchlist & Release Notification Engine",
     version="1.0.0"
 )
@@ -60,7 +60,7 @@ async def health_check():
     """
     return {
         "status": "online",
-        "service": "MoviePulse Backend REST Engine",
+        "service": "MovieDrop Backend REST Engine",
         "version": "1.0.0",
         "tmdb_status": "configured" if settings.TMDB_API_KEY else "missing_key",
         "database_status": "configured" if settings.SUPABASE_URL else "missing_url"

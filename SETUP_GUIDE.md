@@ -1,4 +1,4 @@
-# MoviePulse - Setup Guide & Checklist
+# MovieDrop - Setup Guide & Checklist
 
 Use this as the project setup checklist. The current frontend is public to view and does not require sign-in. Supabase is still needed for the backend movie database and for later watchlist/notification phases.
 
@@ -184,7 +184,7 @@ If port `3000` is stuck or showing stale Next.js errors, stop old Node processes
 You can also use the project launcher:
 
 ```text
-start-moviepulse-dev.bat
+start-MovieDrop-dev.bat
 ```
 
 ---
@@ -225,9 +225,9 @@ Create these services from the same repo/backend folder:
 
 | Service | Start command |
 | :-- | :-- |
-| `moviepulse-backend` | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
-| `moviepulse-worker` | `celery -A app.tasks.worker.celery_app worker --loglevel=info` |
-| `moviepulse-beat` | `celery -A app.tasks.worker.celery_app beat --loglevel=info` |
+| `MovieDrop-backend` | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| `MovieDrop-worker` | `celery -A app.tasks.worker.celery_app worker --loglevel=info` |
+| `MovieDrop-beat` | `celery -A app.tasks.worker.celery_app beat --loglevel=info` |
 
 Add backend env vars from `backend/.env` to each Railway service.
 
