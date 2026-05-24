@@ -47,44 +47,44 @@ export default function MovieCard({
               ✨ Featured Masterpiece
             </span>
             
-            <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-tight tracking-tight drop-shadow-xl">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold text-white mb-4 md:mb-6 leading-tight tracking-tight drop-shadow-xl">
               {movie.title}
             </h1>
             
-            <p className="text-base md:text-lg text-gray-300 mb-8 max-w-xl leading-relaxed drop-shadow">
+            <p className="text-sm sm:text-base md:text-lg text-gray-400 md:text-gray-300 mb-6 md:mb-8 max-w-xl leading-relaxed drop-shadow line-clamp-4 md:line-clamp-none">
               {movie.overview}
             </p>
             
             {/* Metadata Capsules */}
-            <div className="flex flex-wrap items-center gap-4 mb-8">
-              <span className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] backdrop-blur-md text-white px-4.5 py-2 rounded-xl font-bold text-sm shadow-md">
-                <Calendar size={16} className="text-neon-pink" />
+            <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-6 md:mb-8">
+              <span className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] backdrop-blur-md text-white px-3 py-1.5 md:px-4.5 md:py-2 rounded-xl font-bold text-xs md:text-sm shadow-md">
+                <Calendar size={14} className="text-neon-pink" />
                 {new Date(movie.releaseDate).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                 })}
               </span>
-              <span className="flex items-center gap-2 bg-neon-yellow/10 border border-neon-yellow/20 backdrop-blur-md text-neon-yellow px-4.5 py-2 rounded-xl font-bold text-sm shadow-md">
-                <Star size={16} fill="currentColor" />
+              <span className="flex items-center gap-2 bg-neon-yellow/10 border border-neon-yellow/20 backdrop-blur-md text-neon-yellow px-3 py-1.5 md:px-4.5 md:py-2 rounded-xl font-bold text-xs md:text-sm shadow-md">
+                <Star size={14} fill="currentColor" />
                 {movie.rating.toFixed(1)}/10
               </span>
-              <span className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] backdrop-blur-md text-white px-4.5 py-2 rounded-xl font-bold text-sm shadow-md">
-                <Clock size={16} className="text-neon-teal" />
+              <span className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] backdrop-blur-md text-white px-3 py-1.5 md:px-4.5 md:py-2 rounded-xl font-bold text-xs md:text-sm shadow-md">
+                <Clock size={14} className="text-neon-teal" />
                 {movie.runtime} min
               </span>
             </div>
 
             {/* Glowing Call to Actions */}
-            <div className="flex flex-wrap gap-4 items-center">
-              <Link href={`/movies/${movie.id}`}>
-                <button className="btn-neon-pink flex items-center gap-2.5">
+            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center w-full">
+              <Link href={`/movies/${movie.id}`} className="w-full sm:w-auto">
+                <button className="btn-neon-pink flex items-center justify-center gap-2.5 w-full">
                   <Play size={20} fill="currentColor" />
                   View Release & Trailer
                 </button>
               </Link>
               <button 
                 onClick={() => setIsWatchlisted(!isWatchlisted)}
-                className="btn-neon-outline flex items-center gap-2.5"
+                className="btn-neon-outline flex items-center justify-center gap-2.5 w-full sm:w-auto"
               >
                 <Heart size={20} fill={isWatchlisted ? '#FF006E' : 'none'} className={isWatchlisted ? 'text-neon-pink' : ''} />
                 {isWatchlisted ? 'Saved to Watchlist' : 'Add to Watchlist'}

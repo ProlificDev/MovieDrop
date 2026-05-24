@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { Heart, Clock, Calendar, Star, Bell, Play, Loader2 } from 'lucide-react';
+import { Heart, Clock, Calendar, Star, Bell, Play, Loader2, X } from 'lucide-react';
 import ScrollableRow from '@/components/ScrollableRow';
 import { Movie } from '@/lib/mockMovies';
 import { getLiveMovieById, getLiveRelatedMovies } from '@/lib/movies';
@@ -95,7 +95,7 @@ export default function MovieDetailPage({
                   🎭 {movie.genres[0]} • Release Preview
                 </span>
                 
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight drop-shadow-lg">
+                <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight drop-shadow-lg">
                   {movie.title}
                 </h1>
 
@@ -179,11 +179,11 @@ export default function MovieDetailPage({
       <div className="max-w-7xl mx-auto px-6 py-12 relative z-10">
         
         {/* Overview Row */}
-        <section className="mb-16">
-          <h2 className="text-2xl md:text-3xl font-black text-white mb-5 tracking-tight flex items-center gap-2">
+        <section className="mb-12">
+          <h2 className="text-xl md:text-3xl font-black text-white mb-4 tracking-tight flex items-center gap-2">
             Overview
           </h2>
-          <p className="text-gray-300 text-base md:text-lg leading-relaxed max-w-3xl drop-shadow">
+          <p className="text-gray-300 text-sm md:text-lg leading-relaxed max-w-3xl drop-shadow">
             {movie.overview}
           </p>
         </section>
@@ -191,37 +191,37 @@ export default function MovieDetailPage({
         {/* Trailer Modal */}
         {isTrailerOpen && movie.trailerUrl && (
           <div
-            className="fixed inset-0 z-[999] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            className="fixed inset-0 z-[999] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 sm:p-6"
             onClick={() => setIsTrailerOpen(false)}
           >
+            {/* Close Button - Fixed Top Right for easy mobile tapping */}
+            <button
+              onClick={() => setIsTrailerOpen(false)}
+              className="fixed top-4 right-4 z-[1000] flex items-center justify-center bg-white/10 hover:bg-white/20 active:scale-95 text-white p-3 rounded-full backdrop-blur-md border border-white/10 transition-all duration-300 shadow-xl"
+              aria-label="Close trailer"
+            >
+              <X size={20} />
+            </button>
+
+            {/* YouTube Embed Container */}
             <div
-              className="relative w-full max-w-5xl mx-4"
+              className="relative w-full max-w-4xl aspect-video rounded-2xl overflow-hidden shadow-[0_0_80px_rgba(255,0,110,0.3)] border border-white/10"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
-              <button
-                onClick={() => setIsTrailerOpen(false)}
-                className="absolute -top-12 right-0 text-white/70 hover:text-white text-sm font-bold flex items-center gap-2 transition-colors"
-              >
-                <span className="text-2xl leading-none">&times;</span> Close
-              </button>
-              {/* YouTube Embed */}
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-[0_0_80px_rgba(255,0,110,0.2)] border border-white/10">
-                <iframe
-                  src={`${movie.trailerUrl}&autoplay=1`}
-                  title={`${movie.title} Trailer`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                  allowFullScreen
-                  className="w-full h-full"
-                />
-              </div>
+              <iframe
+                src={`${movie.trailerUrl}&autoplay=1`}
+                title={`${movie.title} Trailer`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
+                className="w-full h-full absolute inset-0"
+              />
             </div>
           </div>
         )}
 
         {/* Glass Cast Cards Grid */}
         <section className="mb-20">
-          <h2 className="text-2xl md:text-3xl font-black text-white mb-6 tracking-tight">
+          <h2 className="text-xl md:text-3xl font-black text-white mb-6 tracking-tight">
             Leading Cast
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
