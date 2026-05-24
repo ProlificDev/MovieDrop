@@ -115,11 +115,12 @@ class SyncService:
                 top_cast = self.tmdb.extract_top_cast(details, limit=5)
 
                 # Assemble database payload, mapping keys to Supabase columns
+                release_date = details.get("release_date") or None  # guard against empty string ""
                 payload = {
                     "id": movie_id,
                     "title": details.get("title"),
                     "overview": details.get("overview"),
-                    "release_date": details.get("release_date"),
+                    "release_date": release_date,
                     "poster_path": details.get("poster_path"),
                     "backdrop_path": details.get("backdrop_path"),
                     "vote_average": round(float(details.get("vote_average", 0.0)), 1) if details.get("vote_average") is not None else 0.0,
