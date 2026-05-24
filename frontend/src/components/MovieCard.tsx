@@ -8,7 +8,7 @@ import { Heart, Play, Calendar, Star, Clock } from 'lucide-react';
 
 interface MovieCardProps {
   movie: Movie;
-  variant?: 'grid' | 'featured';
+  variant?: 'grid' | 'featured' | 'scroll';
 }
 
 export default function MovieCard({
@@ -17,6 +17,7 @@ export default function MovieCard({
 }: MovieCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isWatchlisted, setIsWatchlisted] = useState(false);
+  const isScroll = variant === 'scroll';
 
   if (variant === 'featured') {
     return (
@@ -118,14 +119,14 @@ export default function MovieCard({
   }
 
   return (
-    <Link href={`/movies/${movie.id}`}>
+    <Link href={`/movies/${movie.id}`} className={isScroll ? 'flex-shrink-0' : 'w-full'}>
       <div
-        className="relative group flex-shrink-0 w-48 cursor-pointer transition-all duration-300 hover:scale-[1.03]"
+        className={`relative group cursor-pointer transition-all duration-300 hover:scale-[1.03] ${isScroll ? 'w-48' : 'w-full'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Poster Image Frame in Translucent Glass Box */}
-        <div className="relative h-72 bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden group-hover:border-neon-pink/40 group-hover:shadow-[0_8px_30px_rgba(255,0,110,0.15)] transition-all duration-300">
+        <div className="relative aspect-[2/3] w-full bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden group-hover:border-neon-pink/40 group-hover:shadow-[0_8px_30px_rgba(255,0,110,0.15)] transition-all duration-300">
           <Image
             src={movie.posterPath}
             alt={movie.title}

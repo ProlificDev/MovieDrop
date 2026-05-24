@@ -58,7 +58,7 @@ export default function MovieDetailPage({
     <div className="bg-[#06040d] min-h-screen text-[#f1ecfa] relative">
       
       {/* Hero Section with Backdrop */}
-      <div className="relative w-full h-[65vh] md:h-[80vh] overflow-hidden">
+      <div className="relative w-full min-h-[75vh] md:h-[80vh] flex items-end pt-32 pb-12 md:py-0 overflow-hidden">
         <Image
           src={movie.backdropPath}
           alt={movie.title}
@@ -72,7 +72,7 @@ export default function MovieDetailPage({
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,transparent_20%,#06040d_90%)]" />
 
         {/* Content Overlay */}
-        <div className="absolute inset-0 flex items-end pb-12">
+        <div className="w-full relative z-10 md:absolute md:inset-0 md:flex md:items-end md:pb-12">
           <div className="max-w-7xl mx-auto px-6 w-full relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 items-end">
               
@@ -95,7 +95,7 @@ export default function MovieDetailPage({
                   🎭 {movie.genres[0]} • Release Preview
                 </span>
                 
-                <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight drop-shadow-lg">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight drop-shadow-lg">
                   {movie.title}
                 </h1>
 
@@ -136,10 +136,10 @@ export default function MovieDetailPage({
                 </div>
 
                 {/* Main Action Buttons */}
-                <div className="flex flex-wrap gap-4 items-center">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-stretch sm:items-center">
                   <button
                     onClick={() => movie.trailerUrl && setIsTrailerOpen(true)}
-                    className={`btn-neon-pink flex items-center gap-2 ${!movie.trailerUrl ? 'opacity-40 cursor-not-allowed' : ''}`}
+                    className={`btn-neon-pink flex items-center justify-center gap-2 ${!movie.trailerUrl ? 'opacity-40 cursor-not-allowed' : ''}`}
                   >
                     <Play size={18} fill="currentColor" />
                     {movie.trailerUrl ? 'Watch Trailer' : 'No Trailer Available'}
@@ -147,7 +147,7 @@ export default function MovieDetailPage({
                   
                   <button
                     onClick={() => setIsWatchlisted(!isWatchlisted)}
-                    className="btn-neon-outline flex items-center gap-2 py-3!"
+                    className="btn-neon-outline flex items-center justify-center gap-2 py-3!"
                   >
                     <Heart
                       size={18}
@@ -159,7 +159,7 @@ export default function MovieDetailPage({
                   
                   <button 
                     onClick={() => setIsNotified(!isNotified)}
-                    className={`flex items-center gap-2 px-6 py-3.5 rounded-xl font-extrabold text-sm transition-smooth border hover:scale-105 active:scale-95 shadow-md ${
+                    className={`flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-extrabold text-sm transition-smooth border hover:scale-105 active:scale-95 shadow-md ${
                       isNotified 
                         ? 'bg-neon-teal/15 text-neon-teal border-neon-teal/30 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
                         : 'bg-neon-yellow/15 text-neon-yellow border-neon-yellow/30 hover:shadow-[0_0_15px_rgba(255,214,10,0.3)]'

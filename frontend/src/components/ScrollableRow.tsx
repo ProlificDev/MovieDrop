@@ -85,7 +85,7 @@ export default function ScrollableRow({
           className="flex gap-5 overflow-x-auto scrollbar-hide px-6 lg:px-0 scroll-smooth py-2"
         >
           {movies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
+            <MovieCard key={movie.id} movie={movie} variant="scroll" />
           ))}
         </div>
 
