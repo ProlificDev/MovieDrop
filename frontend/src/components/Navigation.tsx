@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Search, Film } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Menu, X, Film } from 'lucide-react';
 
 const navLinks = [
   { name: 'Home', href: '/' },
@@ -13,77 +13,78 @@ const navLinks = [
   { name: 'Top Rated', href: '/movies/top-rated' },
 ];
 
+const NAV_HEIGHT = 64; // px — single source of truth
+
+export { NAV_HEIGHT };
+
 export default function Navigation() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [menuHeight, setMenuHeight] = useState(0);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-  // Close mobile menu on route change
+  // Close drawer on route change
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
 
-  // Scroll detection for nav background enhancement
+  // Lock body scroll when drawer is open
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Animate mobile menu height for smooth open/close
-  useEffect(() => {
-    if (mobileMenuRef.current) {
-      setMenuHeight(isMenuOpen ? mobileMenuRef.current.scrollHeight : 0);
-    }
+    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [isMenuOpen]);
+
+  // Scroll-aware background
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
-    <nav
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
-      style={{
-        background: scrolled
-          ? 'rgba(6, 4, 13, 0.92)'
-          : 'rgba(6, 4, 13, 0.70)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderBottom: scrolled
-          ? '1px solid rgba(255,255,255,0.10)'
-          : '1px solid rgba(255,255,255,0.04)',
-        boxShadow: scrolled
-          ? '0 8px 40px rgba(0,0,0,0.55)'
-          : 'none',
-      }}
-    >
-      {/* Main bar — fixed height to prevent layout shift */}
-      <div className="max-w-7xl mx-auto px-5 sm:px-8" style={{ height: '68px', display: 'flex', alignItems: 'center' }}>
-        <div className="flex items-center justify-between w-full">
-
+    <>
+      {/* ── Fixed Navbar Bar ─────────────────────────────── */}
+      <nav
+        className="fixed top-0 left-0 right-0 z-50"
+        style={{
+          height: `${NAV_HEIGHT}px`,
+          background: scrolled ? 'rgba(6,4,13,0.95)' : 'rgba(6,4,13,0.72)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: scrolled
+            ? '1px solid rgba(255,255,255,0.10)'
+            : '1px solid rgba(255,255,255,0.05)',
+          boxShadow: scrolled ? '0 4px 30px rgba(0,0,0,0.5)' : 'none',
+          transition: 'background 0.3s, border-color 0.3s, box-shadow 0.3s',
+        }}
+      >
+        <div
+          className="max-w-7xl mx-auto w-full px-4 sm:px-6 flex items-center justify-between"
+          style={{ height: '100%' }}
+        >
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center gap-2.5 group flex-shrink-0"
+            className="flex items-center gap-2 flex-shrink-0 group"
             aria-label="MovieDrop Home"
           >
             <span
-              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110 group-active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #FF006E, #D946EF)' }}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
+              style={{ background: 'linear-gradient(135deg,#FF006E,#D946EF)' }}
             >
-              <Film size={16} className="text-white" />
+              <Film size={15} className="text-white" />
             </span>
             <span
-              className="text-xl font-extrabold bg-clip-text text-transparent transition-opacity duration-300 group-hover:opacity-80"
-              style={{ backgroundImage: 'linear-gradient(90deg, #FF006E, #D946EF, #06B6D4)' }}
+              className="text-lg font-extrabold bg-clip-text text-transparent"
+              style={{ backgroundImage: 'linear-gradient(90deg,#FF006E,#D946EF,#06B6D4)' }}
             >
               MovieDrop
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => {
               const active = isActive(link.href);
@@ -91,33 +92,29 @@ export default function Navigation() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="relative px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-250"
+                  className="relative px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors duration-200"
                   style={{
-                    color: active ? '#ffffff' : 'rgba(200,190,220,0.75)',
-                    background: active ? 'rgba(255,0,110,0.12)' : 'transparent',
+                    color: active ? '#fff' : 'rgba(200,190,220,0.7)',
+                    background: active ? 'rgba(255,0,110,0.13)' : 'transparent',
                   }}
                   onMouseEnter={e => {
                     if (!active) {
-                      (e.currentTarget as HTMLElement).style.color = '#ffffff';
-                      (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)';
+                      (e.currentTarget as HTMLElement).style.color = '#fff';
+                      (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)';
                     }
                   }}
                   onMouseLeave={e => {
                     if (!active) {
-                      (e.currentTarget as HTMLElement).style.color = 'rgba(200,190,220,0.75)';
+                      (e.currentTarget as HTMLElement).style.color = 'rgba(200,190,220,0.7)';
                       (e.currentTarget as HTMLElement).style.background = 'transparent';
                     }
                   }}
                 >
                   {link.name}
-                  {/* Active indicator pill */}
                   {active && (
                     <span
-                      className="absolute bottom-0.5 left-1/2 -translate-x-1/2 h-0.5 rounded-full"
-                      style={{
-                        width: '60%',
-                        background: 'linear-gradient(90deg, #FF006E, #06B6D4)',
-                      }}
+                      className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-1/2 rounded-full"
+                      style={{ background: 'linear-gradient(90deg,#FF006E,#06B6D4)' }}
                     />
                   )}
                 </Link>
@@ -125,61 +122,76 @@ export default function Navigation() {
             })}
           </div>
 
-          {/* Right Side Actions */}
-          <div className="flex items-center gap-2">
-            <button
-              aria-label="Search"
-              className="hidden md:flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-250"
-              style={{ color: 'rgba(200,190,220,0.7)' }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.color = '#ffffff';
-                (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.color = 'rgba(200,190,220,0.7)';
-                (e.currentTarget as HTMLElement).style.background = 'transparent';
-              }}
-            >
-              <Search size={18} />
-            </button>
-
-            {/* Hamburger — Mobile only */}
-            <button
-              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-              onClick={() => setIsMenuOpen(prev => !prev)}
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-white transition-all duration-250"
-              style={{ background: isMenuOpen ? 'rgba(255,0,110,0.15)' : 'transparent' }}
-            >
-              <span
-                className="transition-all duration-300"
-                style={{ opacity: isMenuOpen ? 0 : 1, position: isMenuOpen ? 'absolute' : 'relative' }}
-              >
-                <Menu size={22} />
-              </span>
-              <span
-                className="transition-all duration-300"
-                style={{ opacity: isMenuOpen ? 1 : 0, position: isMenuOpen ? 'relative' : 'absolute' }}
-              >
-                <X size={22} />
-              </span>
-            </button>
-          </div>
+          {/* Hamburger — mobile only */}
+          <button
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMenuOpen}
+            onClick={() => setIsMenuOpen(v => !v)}
+            className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl text-white transition-colors duration-200"
+            style={{ background: isMenuOpen ? 'rgba(255,0,110,0.18)' : 'rgba(255,255,255,0.05)' }}
+          >
+            {/* Crisp icon swap — no layout thrashing */}
+            {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Mobile Dropdown — smooth height animation, no layout shift */}
+      {/* ── Mobile Full-Screen Drawer ─────────────────────── */}
+      {/* Backdrop — tap outside to close */}
       <div
+        aria-hidden="true"
+        onClick={() => setIsMenuOpen(false)}
+        className="md:hidden fixed inset-0 z-40 transition-opacity duration-300"
         style={{
-          height: `${menuHeight}px`,
-          overflow: 'hidden',
-          transition: 'height 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
+          background: 'rgba(0,0,0,0.6)',
+          backdropFilter: 'blur(4px)',
+          opacity: isMenuOpen ? 1 : 0,
+          pointerEvents: isMenuOpen ? 'auto' : 'none',
         }}
+      />
+
+      {/* Drawer panel — slides in from the right */}
+      <aside
+        className="md:hidden fixed top-0 right-0 bottom-0 z-50 flex flex-col"
+        style={{
+          width: 'min(80vw, 300px)',
+          background: 'rgba(8,4,18,0.98)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderLeft: '1px solid rgba(255,255,255,0.08)',
+          transform: isMenuOpen ? 'translateX(0)' : 'translateX(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+          willChange: 'transform',
+        }}
+        aria-label="Mobile navigation"
       >
+        {/* Drawer header */}
         <div
-          ref={mobileMenuRef}
-          style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
-          className="px-4 py-3 space-y-1"
+          className="flex items-center justify-between px-5"
+          style={{
+            height: `${NAV_HEIGHT}px`,
+            borderBottom: '1px solid rgba(255,255,255,0.07)',
+            flexShrink: 0,
+          }}
         >
+          <span
+            className="text-base font-extrabold bg-clip-text text-transparent"
+            style={{ backgroundImage: 'linear-gradient(90deg,#FF006E,#D946EF,#06B6D4)' }}
+          >
+            Navigation
+          </span>
+          <button
+            aria-label="Close menu"
+            onClick={() => setIsMenuOpen(false)}
+            className="flex items-center justify-center w-9 h-9 rounded-xl text-white"
+            style={{ background: 'rgba(255,255,255,0.06)' }}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Drawer links */}
+        <nav className="flex flex-col gap-1 px-3 py-4 flex-1 overflow-y-auto">
           {navLinks.map((link) => {
             const active = isActive(link.href);
             return (
@@ -187,21 +199,31 @@ export default function Navigation() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200"
+                className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200"
                 style={{
-                  color: active ? '#ffffff' : 'rgba(200,190,220,0.75)',
+                  color: active ? '#fff' : 'rgba(200,190,220,0.75)',
                   background: active
-                    ? 'linear-gradient(90deg, rgba(255,0,110,0.15), rgba(6,182,212,0.08))'
+                    ? 'linear-gradient(90deg,rgba(255,0,110,0.18),rgba(6,182,212,0.07))'
                     : 'transparent',
-                  borderLeft: active ? '2px solid #FF006E' : '2px solid transparent',
+                  borderLeft: `3px solid ${active ? '#FF006E' : 'transparent'}`,
                 }}
               >
                 {link.name}
               </Link>
             );
           })}
+        </nav>
+
+        {/* Bottom accent */}
+        <div
+          className="px-5 py-5"
+          style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <p className="text-xs text-gray-600 font-medium">
+            © 2025 MovieDrop
+          </p>
         </div>
-      </div>
-    </nav>
+      </aside>
+    </>
   );
 }

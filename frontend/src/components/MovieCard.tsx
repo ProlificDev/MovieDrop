@@ -21,7 +21,7 @@ export default function MovieCard({
 
   if (variant === 'featured') {
     return (
-      <div className="relative min-h-[90vh] md:h-screen w-full overflow-hidden bg-[#06040d] flex items-center pt-20">
+      <div className="relative min-h-[85vh] md:min-h-screen w-full overflow-hidden bg-[#06040d] flex items-center">
         {/* Backdrop Image with Custom Gradient Blending */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -39,7 +39,7 @@ export default function MovieCard({
         </div>
 
         {/* Content Container */}
-        <div className="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10 py-10 sm:py-14">
           
           {/* Left Block - Asymmetrical Typography Showcase */}
           <div className="lg:col-span-7 flex flex-col items-start text-left">

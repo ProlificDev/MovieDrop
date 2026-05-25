@@ -30,7 +30,7 @@ export default function RootLayout({
 
         <div className="relative z-10">
           <Navigation />
-          <main className="pt-[68px]">{children}</main>
+          <main className="pt-16">{children}</main>
         </div>
       </body>
     </html>

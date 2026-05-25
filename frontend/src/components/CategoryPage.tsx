@@ -14,10 +14,10 @@ export default function CategoryPage({
 }: CategoryPageProps) {
   return (
     <div className="bg-[#06040d] min-h-screen text-[#f1ecfa]">
-      <div className="max-w-7xl mx-auto px-6 py-20 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-16 relative z-10">
         
         {/* Category Header */}
-        <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-3 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-white mb-3 tracking-tight">
           {title}
         </h1>
         
@@ -26,7 +26,7 @@ export default function CategoryPage({
         </p>
 
         {/* Movies Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 md:gap-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 md:gap-8">
           {movies.map((movie) => (
             <div key={movie.id} className="flex justify-center">
               <MovieCard movie={movie} />

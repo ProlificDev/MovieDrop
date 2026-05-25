@@ -56,7 +56,7 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="relative">
-        <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
           {/* Upcoming */}
           <ScrollableRow
             title="🎬 Upcoming Releases"
@@ -86,7 +86,7 @@ export default function Home() {
           />
 
           {/* Premium Call to Action Section - "No More Boring Watchlists" */}
-          <section className="mt-24 px-8 py-20 bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl rounded-3xl text-center relative overflow-hidden group shadow-2xl">
+          <section className="mt-16 sm:mt-24 px-4 sm:px-8 py-12 sm:py-20 bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl rounded-3xl text-center relative overflow-hidden group shadow-2xl">
             {/* Ambient Background Glow inside the CTA */}
             <div className="absolute -top-12 -left-12 w-64 h-64 bg-neon-pink/15 rounded-full blur-[80px] pointer-events-none group-hover:scale-110 transition-transform duration-700" />
             <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-neon-teal/15 rounded-full blur-[80px] pointer-events-none group-hover:scale-110 transition-transform duration-700" />
