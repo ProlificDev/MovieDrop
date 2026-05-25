@@ -45,25 +45,26 @@ export default function Navigation() {
 
   return (
     <>
-      {/* ── Fixed Navbar Bar ─────────────────────────────── */}
-      <nav
-        className="fixed top-0 left-0 right-0 z-50"
-        style={{
-          height: `${NAV_HEIGHT}px`,
-          background: scrolled ? 'rgba(6,4,13,0.95)' : 'rgba(6,4,13,0.72)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderBottom: scrolled
-            ? '1px solid rgba(255,255,255,0.10)'
-            : '1px solid rgba(255,255,255,0.05)',
-          boxShadow: scrolled ? '0 4px 30px rgba(0,0,0,0.5)' : 'none',
-          transition: 'background 0.3s, border-color 0.3s, box-shadow 0.3s',
-        }}
-      >
-        <div
-          className="max-w-7xl mx-auto w-full px-4 sm:px-6 flex items-center justify-between"
-          style={{ height: '100%' }}
+      {/* ── Floating Rounded Navbar ───────────────────────── */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex justify-center w-full px-4 sm:px-6 pt-4 sm:pt-6 pointer-events-none transition-all duration-300">
+        <nav
+          className="pointer-events-auto rounded-2xl w-full max-w-6xl"
+          style={{
+            height: `${NAV_HEIGHT}px`,
+            background: scrolled ? 'rgba(6,4,13,0.92)' : 'rgba(255,255,255,0.02)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: scrolled
+              ? '1px solid rgba(255,255,255,0.12)'
+              : '1px solid rgba(255,255,255,0.06)',
+            boxShadow: scrolled ? '0 8px 32px rgba(0,0,0,0.5)' : '0 4px 24px rgba(0,0,0,0.2)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
         >
+          <div
+            className="w-full h-full px-4 sm:px-6 flex items-center justify-between"
+            style={{ height: '100%' }}
+          >
           {/* Logo */}
           <Link
             href="/"
@@ -134,7 +135,8 @@ export default function Navigation() {
             {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
-      </nav>
+        </nav>
+      </div>
 
       {/* ── Mobile Full-Screen Drawer ─────────────────────── */}
       {/* Backdrop — tap outside to close */}
