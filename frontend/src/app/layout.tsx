@@ -1,14 +1,18 @@
 import React from 'react';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Navigation from '@/components/Navigation';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: 'MovieDrop - Movie Notification App',
   description: 'Never miss a movie launch. Curate your watchlist and receive timely email and device push notifications for upcoming releases.',
   keywords: 'movies, notifications, watchlist, releases, cinema',
   authors: [{ name: 'MovieDrop Team' }],
-  viewport: 'width=device-width, initial-scale=1.0',
 };
 
 export default function RootLayout({
@@ -26,7 +30,7 @@ export default function RootLayout({
 
         <div className="relative z-10">
           <Navigation />
-          <main className="pt-16">{children}</main>
+          <main className="pt-[68px]">{children}</main>
         </div>
       </body>
     </html>
