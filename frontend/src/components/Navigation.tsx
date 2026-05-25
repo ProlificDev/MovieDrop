@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, Film } from 'lucide-react';
+import { Menu, X, Film, Sun, Moon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 const navLinks = [
   { name: 'Home', href: '/' },
@@ -21,6 +22,10 @@ export default function Navigation() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   // Close drawer on route change
   useEffect(() => {
@@ -123,7 +128,20 @@ export default function Navigation() {
             })}
           </div>
 
-          {/* Hamburger — mobile only */}
+          <div className="flex items-center gap-2">
+            {/* Theme Toggle */}
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="flex items-center justify-center w-10 h-10 rounded-xl transition-colors duration-200"
+                style={{ background: 'rgba(128,128,128,0.1)', color: 'var(--text)' }}
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+            )}
+
+            {/* Hamburger — mobile only */}
           <button
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMenuOpen}

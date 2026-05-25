@@ -5,8 +5,23 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
   --font-plus-jakarta: 'Plus Jakarta Sans', sans-serif;
+  --bg: #ffffff;
+  --text: #1a1a1a;
+  --glass-bg: rgba(0, 0, 0, 0.03);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-card-bg: rgba(0, 0, 0, 0.02);
+  --glass-card-border: rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  color-scheme: dark;
+  --bg: #06040d;
+  --text: #f1ecfa;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-card-bg: rgba(255, 255, 255, 0.02);
+  --glass-card-border: rgba(255, 255, 255, 0.06);
 }
 
 * {
@@ -15,16 +30,21 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: var(--font-plus-jakarta);
-  background-color: #06040d;
-  color: #f1ecfa;
-  line-height: 1.6;
+html, body {
   overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-plus-jakarta);
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
 }
 
 /* Custom Scrollbar */
@@ -91,11 +111,11 @@ html {
   }
 
   .glass-panel {
-    @apply bg-white/[0.03] border border-white/[0.08] backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+    @apply bg-[var(--glass-bg)] border border-[var(--glass-border)] backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
   }
 
   .glass-card {
-    @apply bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.15] backdrop-blur-lg rounded-2xl transition-smooth shadow-lg;
+    @apply bg-[var(--glass-card-bg)] border border-[var(--glass-card-border)] hover:border-neon-pink/40 backdrop-blur-lg rounded-2xl transition-smooth shadow-lg;
   }
 
   .btn-neon-pink {

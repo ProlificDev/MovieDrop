@@ -42,8 +42,8 @@ export default function MovieCard({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10 py-10 sm:py-14">
           
           {/* Left Block - Asymmetrical Typography Showcase */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left">
-            <span className="text-xs md:text-sm font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-neon-pink via-neon-magenta to-neon-teal uppercase mb-4 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.06] shadow-sm">
+          <div className="lg:col-span-7 flex flex-col items-center text-center">
+            <span className="text-xs md:text-sm font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-neon-pink via-neon-magenta to-neon-teal uppercase mb-4 px-3 py-1.5 rounded-full bg-black/20 border border-white/[0.06] shadow-sm">
               ✨ Featured Masterpiece
             </span>
             
