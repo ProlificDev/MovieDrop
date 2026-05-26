@@ -76,12 +76,11 @@ export default function Navigation() {
             className="flex items-center gap-2 flex-shrink-0 group"
             aria-label="MovieDrop Home"
           >
-            <span
-              className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
-              style={{ background: 'linear-gradient(135deg,#FF006E,#D946EF)' }}
-            >
-              <Film size={15} className="text-white" />
-            </span>
+            <img
+              src="/logo.png"
+              alt="MovieDrop Logo"
+              className="w-8 h-8 rounded-lg transition-transform duration-300 group-hover:scale-110"
+            />
             <span
               className="text-lg font-extrabold bg-clip-text text-transparent"
               style={{ backgroundImage: 'linear-gradient(90deg,#FF006E,#D946EF,#06B6D4)' }}

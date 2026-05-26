@@ -14,8 +14,9 @@ export const metadata: Metadata = {
   keywords: 'movies, notifications, watchlist, releases, cinema',
   authors: [{ name: 'MovieDrop Team' }],
   icons: {
-    icon: '/icon.svg',
-    shortcut: '/icon.svg',
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
   },
 };
 
