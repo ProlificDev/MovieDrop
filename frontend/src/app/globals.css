@@ -6,15 +6,6 @@
 
 :root {
   --font-plus-jakarta: 'Plus Jakarta Sans', sans-serif;
-  --bg: #ffffff;
-  --text: #1a1a1a;
-  --glass-bg: rgba(0, 0, 0, 0.03);
-  --glass-border: rgba(0, 0, 0, 0.1);
-  --glass-card-bg: rgba(0, 0, 0, 0.02);
-  --glass-card-border: rgba(0, 0, 0, 0.08);
-}
-
-.dark {
   color-scheme: dark;
   --bg: #06040d;
   --text: #f1ecfa;

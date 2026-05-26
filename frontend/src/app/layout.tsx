@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased min-h-screen relative overflow-x-hidden text-center transition-colors duration-300">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
           {/* Organic Glowing Blobs */}
           <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] bg-neon-pink/10 rounded-full blur-[150px] pointer-events-none animate-blob-slow-1 z-0" />
           <div className="absolute bottom-[20%] right-[-10%] w-[45vw] h-[45vw] max-w-[500px] max-h-[500px] bg-neon-teal/10 rounded-full blur-[150px] pointer-events-none animate-blob-slow-2 z-0" />
