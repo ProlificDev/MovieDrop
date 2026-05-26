@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   description: 'Never miss a movie launch. Curate your watchlist and receive timely email and device push notifications for upcoming releases.',
   keywords: 'movies, notifications, watchlist, releases, cinema',
   authors: [{ name: 'MovieDrop Team' }],
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+  },
 };
 
 import { ThemeProvider } from '@/components/providers';
