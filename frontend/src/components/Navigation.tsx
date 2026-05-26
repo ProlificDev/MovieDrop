@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, Film, Sun, Moon } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
 const navLinks = [
@@ -152,8 +152,9 @@ export default function Navigation() {
             {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
-        </nav>
       </div>
+    </nav>
+  </div>
 
       {/* ── Mobile Full-Screen Drawer ─────────────────────── */}
       {/* Backdrop — tap outside to close */}
