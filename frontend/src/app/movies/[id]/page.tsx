@@ -135,10 +135,13 @@ export default function MovieDetailPage({
   }
 
   // Multiple streaming providers — each uses the TMDB movie ID
+  // If one shows "unavailable", the next provider likely has the film
   const STREAM_SOURCES = [
-    { label: '🚀 Server Alpha', desc: 'vidsrc.to (4K)', url: `https://vidsrc.to/embed/movie/${movieId}` },
-    { label: '⚡ Server Beta',  desc: 'vidsrc.me (HD)',  url: `https://vidsrc.me/embed/movie?tmdb=${movieId}` },
-    { label: '📡 Backup',      desc: 'autoembed.co',   url: `https://autoembed.co/movie/tmdb/${movieId}` },
+    { label: '🚀 Server 1', desc: 'vidsrc.xyz',  url: `https://vidsrc.xyz/embed/movie?tmdb=${movieId}` },
+    { label: '⚡ Server 2', desc: '2embed.cc',   url: `https://2embed.cc/embed/${movieId}` },
+    { label: '🎬 Server 3', desc: 'vidsrc.to',   url: `https://vidsrc.to/embed/movie/${movieId}` },
+    { label: '📡 Server 4', desc: 'vidsrc.me',   url: `https://vidsrc.me/embed/movie?tmdb=${movieId}` },
+    { label: '🌐 Server 5', desc: 'embed.su',    url: `https://embed.su/embed/movie/${movieId}` },
   ];
   const activeStream = STREAM_SOURCES[streamServer]?.url ?? STREAM_SOURCES[0].url;
 
