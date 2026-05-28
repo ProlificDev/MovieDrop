@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { 
   Clock, Calendar, Star, Play, Pause, Loader2, X, 
-  Volume2, VolumeX, Maximize, Tv, Sliders, Globe, 
+  Volume2, VolumeX, Maximize, Sliders, Globe, 
   Activity, Check, ChevronDown, Sparkles
 } from 'lucide-react';
 import ScrollableRow from '@/components/ScrollableRow';
@@ -43,7 +43,6 @@ export default function MovieDetailPage({
   const [liveBitrate, setLiveBitrate] = useState(15.8);
 
   // Dropdown states
-  const [showServerDropdown, setShowServerDropdown] = useState(false);
   const [showQualityDropdown, setShowQualityDropdown] = useState(false);
   const [showSubtitlesDropdown, setShowSubtitlesDropdown] = useState(false);
 
@@ -400,7 +399,6 @@ export default function MovieDetailPage({
                           onClick={() => {
                             setShowSubtitlesDropdown(!showSubtitlesDropdown);
                             setShowQualityDropdown(false);
-                            setShowServerDropdown(false);
                           }}
                           className="flex items-center gap-1.5 text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] px-3 py-1.5 rounded-xl cursor-pointer"
                         >
@@ -433,7 +431,6 @@ export default function MovieDetailPage({
                           onClick={() => {
                             setShowQualityDropdown(!showQualityDropdown);
                             setShowSubtitlesDropdown(false);
-                            setShowServerDropdown(false);
                           }}
                           className="flex items-center gap-1.5 text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] px-3 py-1.5 rounded-xl cursor-pointer"
                         >
