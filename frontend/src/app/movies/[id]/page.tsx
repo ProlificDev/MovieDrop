@@ -35,7 +35,7 @@ export default function MovieDetailPage({
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(7200); // 2 hours in seconds
-  const [streamServer, setStreamServer] = useState('Server Alpha [Primary 4K]');
+  const [streamServer, setStreamServer] = useState(0); // index into STREAM_SOURCES
   const [videoQuality, setVideoQuality] = useState('1080p Ultra HD');
   const [selectedSubtitles, setSelectedSubtitles] = useState('English [CC]');
   const [theaterDimmed, setTheaterDimmed] = useState(false);
@@ -134,8 +134,13 @@ export default function MovieDetailPage({
     notFound();
   }
 
-  // Use vidsrc.to to stream the full movie via TMDB ID — falls back to trailer only if needed
-  const movieStreamUrl = `https://vidsrc.to/embed/movie/${movieId}`;
+  // Multiple streaming providers — each uses the TMDB movie ID
+  const STREAM_SOURCES = [
+    { label: '🚀 Server Alpha', desc: 'vidsrc.to (4K)', url: `https://vidsrc.to/embed/movie/${movieId}` },
+    { label: '⚡ Server Beta',  desc: 'vidsrc.me (HD)',  url: `https://vidsrc.me/embed/movie?tmdb=${movieId}` },
+    { label: '📡 Backup',      desc: 'autoembed.co',   url: `https://autoembed.co/movie/tmdb/${movieId}` },
+  ];
+  const activeStream = STREAM_SOURCES[streamServer]?.url ?? STREAM_SOURCES[0].url;
 
   return (
     <div className={`bg-[#06040d] min-h-screen text-[#f1ecfa] relative transition-all duration-700 ${theaterDimmed ? 'bg-[#000000]/98' : ''}`}>
@@ -304,11 +309,11 @@ export default function MovieDetailPage({
 
               {/* Theater Canvas Container */}
               <div className="relative aspect-video rounded-3xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,0.95)] border border-white/[0.1] bg-black">
-                {/* Full Movie Stream via vidsrc.to using TMDB movie ID */}
+                {/* Full Movie Stream — src keyed to remount iframe on server switch */}
                 {isPlayingVideo && (
                   <iframe
-                    key={movieStreamUrl}
-                    src={movieStreamUrl}
+                    key={activeStream}
+                    src={activeStream}
                     title={`${movie.title} - Full Movie Stream`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                     allowFullScreen
@@ -488,19 +493,25 @@ export default function MovieDetailPage({
               <div className="mt-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch select-none">
                 {/* Server selection buttons */}
                 <div className="bg-white/[0.02] border border-white/[0.06] p-4 rounded-2xl md:col-span-7 flex flex-col justify-center">
-                  <h5 className="text-[10px] font-black tracking-widest text-gray-500 uppercase mb-2">Streaming Channel Server</h5>
+                  <h5 className="text-[10px] font-black tracking-widest text-gray-500 uppercase mb-1">Streaming Channel</h5>
+                  <p className="text-[10px] text-gray-600 mb-3">If media is unavailable, try a different server</p>
                   <div className="flex flex-wrap gap-2">
-                    {['Server Alpha [Primary 4K]', 'Server Beta [Ultra Speed]', 'Backup Source'].map((srv) => (
+                    {STREAM_SOURCES.map((src, idx) => (
                       <button
-                        key={srv}
-                        onClick={() => setStreamServer(srv)}
-                        className={`text-xs font-bold py-2 px-3.5 rounded-xl border transition-all cursor-pointer ${
-                          streamServer === srv 
+                        key={src.label}
+                        onClick={() => {
+                          setStreamServer(idx);
+                          setIsPlayingVideo(false);
+                          setTimeout(() => setIsPlayingVideo(true), 150);
+                        }}
+                        className={`text-xs font-bold py-2 px-3.5 rounded-xl border transition-all cursor-pointer flex flex-col items-start ${
+                          streamServer === idx
                             ? 'bg-neon-pink/15 text-neon-pink border-neon-pink/30 shadow-[0_0_12px_rgba(255,0,110,0.15)]'
                             : 'bg-white/[0.02] text-gray-400 border-white/[0.04] hover:bg-white/[0.06] hover:text-white'
                         }`}
                       >
-                        {srv.split(' ')[1] === 'Alpha' ? '🚀 Server Alpha (4K)' : srv.split(' ')[1] === 'Beta' ? '⚡ Server Beta (1080p)' : '📡 Backup Stream'}
+                        <span>{src.label}</span>
+                        <span className="text-[9px] opacity-60 font-normal mt-0.5">{src.desc}</span>
                       </button>
                     ))}
                   </div>
