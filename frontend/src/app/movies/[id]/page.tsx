@@ -133,8 +133,8 @@ export default function MovieDetailPage({
     notFound();
   }
 
-  // Single clean embed URL — popup ads blocked via sandbox attribute on the iframe
-  const streamUrl = `https://multiembed.mov/?video_id=${movieId}&tmdb=1`;
+  // Stream via vidsrc.me — clean player with minimal ads
+  const streamUrl = `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
 
   return (
     <div className={`bg-[#06040d] min-h-screen text-[#f1ecfa] relative transition-all duration-700 ${theaterDimmed ? 'bg-[#000000]/98' : ''}`}>
@@ -310,7 +310,6 @@ export default function MovieDetailPage({
                     src={streamUrl}
                     title={`${movie.title} - Full Movie Stream`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-fullscreen"
                     allowFullScreen
                     className="w-full h-full absolute inset-0 z-0 border-0"
                   />
