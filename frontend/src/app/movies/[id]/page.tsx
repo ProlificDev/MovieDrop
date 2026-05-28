@@ -133,8 +133,7 @@ export default function MovieDetailPage({
     notFound();
   }
 
-  // Stream via 2embed.cc — native HTML5 player, no click-open-tab ads
-  const streamUrl = `https://2embed.cc/embed/${movieId}`;
+  const streamUrl = `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
 
   return (
     <div className={`bg-[#06040d] min-h-screen text-[#f1ecfa] relative transition-all duration-700 ${theaterDimmed ? 'bg-[#000000]/98' : ''}`}>
