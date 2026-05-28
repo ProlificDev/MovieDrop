@@ -91,7 +91,13 @@ class SyncService:
             try:
                 while current_page <= total_pages and current_page <= max_pages:
                     logger.info(f"  [{category_key}] Page {current_page}/{min(total_pages, max_pages)}")
-                    data = await self.tmdb.get_movies_by_endpoint(tmdb_endpoint, page=current_page)
+                    
+                    if tmdb_endpoint == "now_playing":
+                        data = await self.tmdb.get_discover_movies(page=current_page, year=2023)
+                    elif tmdb_endpoint == "upcoming":
+                        data = await self.tmdb.get_discover_movies(page=current_page, year=2024)
+                    else:
+                        data = await self.tmdb.get_movies_by_endpoint(tmdb_endpoint, page=current_page)
                     
                     results = data.get("results", [])
                     movie_list.extend(results)

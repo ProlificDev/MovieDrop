@@ -58,6 +58,28 @@ class TMDBClient:
         wait=wait_exponential(multiplier=1, min=2, max=10),
         reraise=True
     )
+    async def get_discover_movies(self, page: int = 1, year: int = 2023) -> Dict[str, Any]:
+        """
+        Query movies by specific release year to guarantee streaming availability.
+        """
+        url = f"{self.base_url}/discover/movie"
+        params = {
+            "api_key": self.api_key,
+            "language": "en-US",
+            "page": page,
+            "primary_release_year": year,
+            "sort_by": "popularity.desc"
+        }
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, headers=self.headers, params=params)
+            response.raise_for_status()
+            return response.json()
+
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        reraise=True
+    )
     async def get_movie_details(self, movie_id: int) -> Dict[str, Any]:
         """
         Retrieve complete details for a single film, hydrates cast credits 
