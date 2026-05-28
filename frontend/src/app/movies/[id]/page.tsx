@@ -134,7 +134,8 @@ export default function MovieDetailPage({
     notFound();
   }
 
-  const defaultEmbed = movie.trailerUrl || `https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&showinfo=0`;
+  // Use vidsrc.to to stream the full movie via TMDB ID — falls back to trailer only if needed
+  const movieStreamUrl = `https://vidsrc.to/embed/movie/${movieId}`;
 
   return (
     <div className={`bg-[#06040d] min-h-screen text-[#f1ecfa] relative transition-all duration-700 ${theaterDimmed ? 'bg-[#000000]/98' : ''}`}>
@@ -303,14 +304,18 @@ export default function MovieDetailPage({
 
               {/* Theater Canvas Container */}
               <div className="relative aspect-video rounded-3xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,0.95)] border border-white/[0.1] bg-black">
-                {/* Real Stream embed */}
-                <iframe
-                  src={`${defaultEmbed}${defaultEmbed.includes('?') ? '&' : '?'}&autoplay=${isPlayingVideo ? 1 : 0}&enablejsapi=1`}
-                  title={`${movie.title} Stream`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                  allowFullScreen
-                  className="w-full h-full absolute inset-0 z-0 border-0"
-                />
+                {/* Full Movie Stream via vidsrc.to using TMDB movie ID */}
+                {isPlayingVideo && (
+                  <iframe
+                    key={movieStreamUrl}
+                    src={movieStreamUrl}
+                    title={`${movie.title} - Full Movie Stream`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                    allowFullScreen
+                    referrerPolicy="origin"
+                    className="w-full h-full absolute inset-0 z-0 border-0"
+                  />
+                )}
 
                 {/* Custom Cinematic overlay covering player when paused */}
                 {!isPlayingVideo && (
