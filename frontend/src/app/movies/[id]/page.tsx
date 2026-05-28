@@ -133,8 +133,8 @@ export default function MovieDetailPage({
     notFound();
   }
 
-  // Stream via vidsrc.me — clean player with minimal ads
-  const streamUrl = `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
+  // Stream via 2embed.cc — native HTML5 player, no click-open-tab ads
+  const streamUrl = `https://2embed.cc/embed/${movieId}`;
 
   return (
     <div className={`bg-[#06040d] min-h-screen text-[#f1ecfa] relative transition-all duration-700 ${theaterDimmed ? 'bg-[#000000]/98' : ''}`}>
@@ -269,11 +269,7 @@ export default function MovieDetailPage({
             <div className="max-w-5xl mx-auto">
               {/* Player Header */}
               <div className="flex items-center justify-between mb-4 bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl px-5 py-3 rounded-2xl">
-                <div className="flex items-center gap-3">
-                  <span className="w-2.5 h-2.5 rounded-full bg-neon-pink animate-ping" />
-                  <span className="text-xs font-black tracking-widest text-neon-pink uppercase">LIVE SCREENING</span>
-                  <h3 className="text-white font-extrabold text-sm hidden sm:inline">| {movie.title}</h3>
-                </div>
+                <h3 className="text-white font-extrabold text-sm">{movie.title}</h3>
                 <div className="flex items-center gap-3">
                   {/* Theater lights controller */}
                   <button 
@@ -482,28 +478,6 @@ export default function MovieDetailPage({
                 </div>
               </div>
 
-
-              {showStats && (
-                <div className="mt-4 bg-white/[0.02] border border-white/[0.06] p-4 rounded-2xl flex items-center justify-between select-none">
-                  <div>
-                    <h5 className="text-[10px] font-black tracking-widest text-neon-teal uppercase mb-2.5 flex items-center gap-1">
-                      <Activity size={10} className="animate-pulse" /> Live Stream Telemetry
-                    </h5>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] font-mono text-gray-400">
-                      <div>Bitrate: <span className="text-white font-bold">{liveBitrate} Mbps</span></div>
-                      <div>Latency: <span className="text-white font-bold">14 ms</span></div>
-                      <div>Format: <span className="text-white font-bold">HEVC H.265</span></div>
-                      <div>Audio: <span className="text-white font-bold">Atmos 5.1</span></div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="text-[9px] font-black text-neon-teal bg-neon-teal/10 px-2 py-0.5 rounded border border-neon-teal/20 uppercase tracking-widest mb-1.5">EXCELLENT</div>
-                    <span className="w-5 h-5 rounded-full bg-neon-teal/20 border border-neon-teal flex items-center justify-center">
-                      <Check size={10} className="text-neon-teal font-extrabold" />
-                    </span>
-                  </div>
-                </div>
-              )}
 
             </div>
           </section>
