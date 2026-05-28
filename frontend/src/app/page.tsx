@@ -38,7 +38,7 @@ export default function Home() {
     loadAllMovies();
   }, []);
 
-  const featuredMovie = upcomingMovies[0] || nowPlayingMovies[0] || popularMovies[0];
+  const featuredMovie = nowPlayingMovies[0] || popularMovies[0] || upcomingMovies[0];
 
   if (isLoading) {
     return (
@@ -57,16 +57,9 @@ export default function Home() {
       {/* Main Content */}
       <div className="relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
-          {/* Upcoming */}
-          <ScrollableRow
-            title="🎬 Upcoming Releases"
-            movies={upcomingMovies}
-            link="/movies/upcoming"
-          />
-
           {/* Now Playing */}
           <ScrollableRow
-            title="🍿 Now Playing"
+            title="🍿 Now Playing & Streaming"
             movies={nowPlayingMovies}
             link="/movies/now-playing"
           />
@@ -83,6 +76,13 @@ export default function Home() {
             title="🏆 Top Rated Movies"
             movies={topRatedMovies}
             link="/movies/top-rated"
+          />
+
+          {/* Upcoming */}
+          <ScrollableRow
+            title="📅 Coming Soon (Previews)"
+            movies={upcomingMovies}
+            link="/movies/upcoming"
           />
 
           {/* Premium CineStream Feature Showcase Section */}
