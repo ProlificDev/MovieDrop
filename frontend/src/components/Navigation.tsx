@@ -72,18 +72,18 @@ export default function Navigation() {
           <Link
             href="/"
             className="flex items-center gap-2 flex-shrink-0 group"
-            aria-label="MovieDrop Home"
+            aria-label="MoviePulse Home"
           >
             <img
               src="/logo.png"
-              alt="MovieDrop Logo"
+              alt="MoviePulse Logo"
               className="w-8 h-8 rounded-lg transition-transform duration-300 group-hover:scale-110"
             />
             <span
               className="text-lg font-extrabold bg-clip-text text-transparent"
               style={{ backgroundImage: 'linear-gradient(90deg,#FF006E,#D946EF,#06B6D4)' }}
             >
-              MovieDrop
+              MoviePulse
             </span>
           </Link>
 
@@ -226,7 +226,7 @@ export default function Navigation() {
           style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
         >
           <p className="text-xs text-gray-600 font-medium">
-            © 2025 MovieDrop
+            © 2026 MoviePulse
           </p>
         </div>
       </aside>

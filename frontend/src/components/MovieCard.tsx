@@ -16,7 +16,6 @@ export default function MovieCard({
   variant = 'grid',
 }: MovieCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [isWatchlisted, setIsWatchlisted] = useState(false);
   const isScroll = variant === 'scroll';
 
   if (variant === 'featured') {
@@ -75,20 +74,18 @@ export default function MovieCard({
             </div>
 
             {/* Glowing Call to Actions */}
-            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center w-full">
-              <Link href={`/movies/${movie.id}`} className="w-full sm:w-auto">
-                <button className="btn-neon-pink flex items-center justify-center gap-2.5 w-full">
+            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center w-full justify-center">
+              <Link href={`/movies/${movie.id}?play=true`} className="w-full sm:w-auto">
+                <button className="btn-neon-pink flex items-center justify-center gap-2.5 w-full cursor-pointer">
                   <Play size={20} fill="currentColor" />
-                  View Release & Trailer
+                  Stream Movie Now 🍿
                 </button>
               </Link>
-              <button 
-                onClick={() => setIsWatchlisted(!isWatchlisted)}
-                className="btn-neon-outline flex items-center justify-center gap-2.5 w-full sm:w-auto"
-              >
-                <Heart size={20} fill={isWatchlisted ? '#FF006E' : 'none'} className={isWatchlisted ? 'text-neon-pink' : ''} />
-                {isWatchlisted ? 'Saved to Watchlist' : 'Add to Watchlist'}
-              </button>
+              <Link href={`/movies/${movie.id}`} className="w-full sm:w-auto">
+                <button className="btn-neon-outline flex items-center justify-center gap-2.5 w-full cursor-pointer">
+                  View Story & Details
+                </button>
+              </Link>
             </div>
           </div>
 
@@ -146,19 +143,12 @@ export default function MovieCard({
               </p>
             </div>
             
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                setIsWatchlisted(!isWatchlisted);
-              }}
-              className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-neon-magenta hover:shadow-[0_0_15px_rgba(255,0,110,0.4)] text-white px-4 py-2.5 rounded-xl font-bold text-xs transition-smooth w-full justify-center"
-            >
-              <Heart
-                size={14}
-                fill={isWatchlisted ? 'currentColor' : 'none'}
-              />
-              {isWatchlisted ? 'Saved' : 'Watchlist'}
-            </button>
+            <div className="w-full">
+              <span className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-neon-magenta hover:shadow-[0_0_15px_rgba(255,0,110,0.4)] text-white px-4 py-2.5 rounded-xl font-bold text-xs transition-smooth w-full justify-center">
+                <Play size={12} fill="currentColor" />
+                STREAM NOW 🍿
+              </span>
+            </div>
           </div>
 
           {/* Release Year Badge */}

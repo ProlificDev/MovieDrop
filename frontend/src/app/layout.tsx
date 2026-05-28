@@ -9,10 +9,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'MovieDrop - Movie Notification App',
-  description: 'Never miss a movie launch. Curate your watchlist and receive timely email and device push notifications for upcoming releases.',
-  keywords: 'movies, notifications, watchlist, releases, cinema',
-  authors: [{ name: 'MovieDrop Team' }],
+  title: 'MoviePulse CineStream - Stream Premium Movies',
+  description: 'Immerse yourself in premium cinematic storytelling. Stream the latest now playing and popular movies in stunning Ultra HD, absolutely free.',
+  keywords: 'movies, stream, cinestream, streaming, watch movies, cinema, ultra hd',
+  authors: [{ name: 'MoviePulse Team' }],
   icons: {
     icon: '/icon.png',
     shortcut: '/icon.png',

@@ -85,27 +85,60 @@ export default function Home() {
             link="/movies/top-rated"
           />
 
-          {/* Premium Call to Action Section - "No More Boring Watchlists" */}
-          <section className="mt-16 sm:mt-24 px-4 sm:px-8 py-12 sm:py-20 bg-white/[0.02] border border-white/[0.06] backdrop-blur-xl rounded-3xl text-center relative overflow-hidden group shadow-2xl">
-            {/* Ambient Background Glow inside the CTA */}
-            <div className="absolute -top-12 -left-12 w-64 h-64 bg-neon-pink/15 rounded-full blur-[80px] pointer-events-none group-hover:scale-110 transition-transform duration-700" />
-            <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-neon-teal/15 rounded-full blur-[80px] pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+          {/* Premium CineStream Feature Showcase Section */}
+          <section className="mt-16 sm:mt-24 px-6 sm:px-10 py-12 sm:py-20 bg-white/[0.01] border border-white/[0.05] backdrop-blur-2xl rounded-3xl text-center relative overflow-hidden group shadow-2xl">
+            {/* Ambient Background glows */}
+            <div className="absolute -top-24 -left-24 w-80 h-80 bg-neon-pink/10 rounded-full blur-[100px] pointer-events-none group-hover:scale-110 transition-transform duration-1000" />
+            <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-neon-teal/10 rounded-full blur-[100px] pointer-events-none group-hover:scale-110 transition-transform duration-1000" />
 
-            <div className="relative z-10 max-w-3xl mx-auto">
-              <span className="text-xs font-black tracking-widest text-neon-pink uppercase bg-neon-pink/10 border border-neon-pink/20 px-3.5 py-1.5 rounded-full mb-6 inline-block">
-                🔔 Instant Movie Alerts
+            <div className="relative z-10 max-w-5xl mx-auto">
+              <span className="text-xs font-black tracking-widest text-neon-pink uppercase bg-neon-pink/10 border border-neon-pink/20 px-4 py-1.5 rounded-full mb-6 inline-block shadow-sm">
+                🍿 CineStream Premium Experience
               </span>
               
               <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight leading-tight">
-                No more <span className="text-neon-gradient">boring watchlists</span>.
+                Your living room. <span className="text-neon-gradient">Our theater.</span>
               </h2>
               
-              <p className="text-gray-400 text-base md:text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
-                Receive instant browser push and email notifications for your favorite movies the second they hit theaters. Curate your custom watchlist and stay ahead of the cinematic curve.
+              <p className="text-gray-400 text-base md:text-lg mb-14 max-w-2xl mx-auto leading-relaxed">
+                Stream the absolute latest releases and award-winning cinematic masterpieces immediately. Fully optimized for responsive playback on any device, with no subscription required.
               </p>
+
+              {/* Grid of features */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left mb-12">
+                <div className="bg-white/[0.02] border border-white/[0.06] p-6 rounded-2xl relative overflow-hidden hover:border-neon-pink/30 hover:bg-white/[0.03] transition-all duration-300 group/card">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-neon-pink" />
+                  <div className="text-2xl mb-4">🎬</div>
+                  <h3 className="text-white font-extrabold text-lg mb-2">Ultra HD Streaming</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    Watch in crystal-clear 4K resolution with responsive scaling and high-bitrate visual clarity tailored for large screens.
+                  </p>
+                </div>
+
+                <div className="bg-white/[0.02] border border-white/[0.06] p-6 rounded-2xl relative overflow-hidden hover:border-neon-magenta/30 hover:bg-white/[0.03] transition-all duration-300 group/card">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-neon-magenta" />
+                  <div className="text-2xl mb-4">⚡</div>
+                  <h3 className="text-white font-extrabold text-lg mb-2">High-Speed Servers</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    Zero latency, instant buffering. Toggle between multiple dedicated streaming streams dynamically for continuous playback.
+                  </p>
+                </div>
+
+                <div className="bg-white/[0.02] border border-white/[0.06] p-6 rounded-2xl relative overflow-hidden hover:border-neon-teal/30 hover:bg-white/[0.03] transition-all duration-300 group/card">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-neon-teal" />
+                  <div className="text-2xl mb-4">🎭</div>
+                  <h3 className="text-white font-extrabold text-lg mb-2">Pure Theater Mode</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    Immerse yourself completely. Toggle dark ambient glows that dynamically flow and pulse matching the color of your movie.
+                  </p>
+                </div>
+              </div>
               
-              <button className="btn-neon-pink px-10 py-4.5 text-base shadow-lg">
-                Enable Notifications Now
+              <button 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="btn-neon-pink px-10 py-4 text-base shadow-lg cursor-pointer"
+              >
+                Browse Now Playing Movies
               </button>
             </div>
           </section>
