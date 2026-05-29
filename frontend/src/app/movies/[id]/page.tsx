@@ -120,6 +120,18 @@ export default function MovieDetailPage({
     };
   }, [isPlayingVideo, isPlaying, duration]);
 
+  // Auto-scroll to player on mobile when playing
+  useEffect(() => {
+    if (isPlayingVideo && isTouchDevice) {
+      setTimeout(() => {
+        const playerElement = document.getElementById('cinestream-theater-player');
+        if (playerElement) {
+          playerElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, [isPlayingVideo, isTouchDevice]);
+
   // Format time (seconds -> hh:mm:ss)
   const formatTime = (timeInSeconds: number) => {
     const hours = Math.floor(timeInSeconds / 3600);
@@ -321,14 +333,29 @@ export default function MovieDetailPage({
               >
                 {/* Full Movie Stream — sandbox blocks popup ads */}
                 {isPlayingVideo && (
-                  <iframe
-                    key={streamUrl}
-                    src={streamUrl}
-                    title={`${movie.title} - Full Movie Stream`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                    allowFullScreen
-                    className="w-full h-full absolute inset-0 z-0 border-0"
-                  />
+                  <>
+                    <iframe
+                      key={streamUrl}
+                      src={streamUrl}
+                      title={`${movie.title} - Full Movie Stream`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                      allowFullScreen
+                      webkitAllowFullscreen
+                      sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation-by-user-activation"
+                      className="w-full h-full absolute inset-0 z-0 border-0"
+                      loading="lazy"
+                      style={{
+                        WebkitPlaysinline: 'true' as any,
+                        playsInline: true,
+                      } as React.CSSProperties}
+                    />
+                    {/* Mobile fallback message if iframe fails to load */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none text-center p-4 text-xs sm:text-sm md:text-base">
+                      <div className="hidden sm:block text-gray-400">
+                        <p>Loading stream...</p>
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 {/* Custom Cinematic overlay covering player when paused */}
