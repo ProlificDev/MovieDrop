@@ -313,15 +313,15 @@ export default function MovieDetailPage({
 
                 {/* Custom Cinematic overlay covering player when paused */}
                 {!isPlayingVideo && (
-                  <div className="absolute inset-0 bg-black/85 backdrop-blur-md z-10 flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none">
+                  <div className="absolute inset-0 bg-black/85 backdrop-blur-md z-10 flex flex-col items-center justify-center p-4 text-center select-none">
                     <button 
                       onClick={() => setIsPlayingVideo(true)}
-                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-r from-neon-pink to-neon-magenta text-white flex items-center justify-center shadow-[0_0_35px_rgba(255,0,110,0.5)] hover:scale-110 hover:shadow-[0_0_50px_rgba(255,0,110,0.85)] cursor-pointer active:scale-95 transition-all duration-300 mb-4 sm:mb-6 flex-shrink-0"
+                      className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gradient-to-r from-neon-pink to-neon-magenta text-white flex items-center justify-center shadow-[0_0_35px_rgba(255,0,110,0.5)] hover:scale-110 hover:shadow-[0_0_50px_rgba(255,0,110,0.85)] cursor-pointer active:scale-95 transition-all duration-300 mb-3 sm:mb-6 flex-shrink-0 z-20"
                     >
-                      <Play size={28} fill="currentColor" className="ml-1 sm:ml-2" />
+                      <Play size={24} fill="currentColor" className="ml-0.5 sm:ml-2" />
                     </button>
-                    <h4 className="text-white font-extrabold text-lg sm:text-xl mb-2">Theater Screening Paused</h4>
-                    <p className="text-gray-400 text-xs sm:text-sm max-w-sm">Click play to resume high-fidelity stream from server point.</p>
+                    <h4 className="text-white font-extrabold text-base sm:text-xl mb-1 sm:mb-2">Theater Screening Paused</h4>
+                    <p className="text-gray-400 text-[11px] sm:text-sm max-w-sm">Click play to resume high-fidelity stream from server point.</p>
                   </div>
                 )}
 
@@ -346,26 +346,26 @@ export default function MovieDetailPage({
                   </div>
 
                   {/* HUD Control Row - Responsive Layout */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-                    {/* Left Controls */}
-                    <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+                  <div className="flex flex-col gap-2.5 sm:gap-4">
+                    {/* First Row - Main Controls */}
+                    <div className="flex items-center gap-2 sm:gap-4">
                       {/* Play/Pause */}
                       <button 
                         onClick={() => setIsPlayingVideo(!isPlayingVideo)}
-                        className="text-white hover:text-neon-pink cursor-pointer transition-colors p-1 sm:p-0 touch-target"
+                        className="text-white hover:text-neon-pink cursor-pointer transition-colors p-1.5 touch-target flex-shrink-0"
                         title={isPlayingVideo ? 'Pause' : 'Play'}
                       >
-                        {isPlayingVideo ? <Pause size={18} fill="currentColor" className="sm:w-5 sm:h-5" /> : <Play size={18} fill="currentColor" className="sm:w-5 sm:h-5" />}
+                        {isPlayingVideo ? <Pause size={20} fill="currentColor" className="sm:w-5 sm:h-5" /> : <Play size={20} fill="currentColor" className="sm:w-5 sm:h-5" />}
                       </button>
 
                       {/* Volume */}
-                      <div className="flex items-center gap-1 sm:gap-2 group/volume">
+                      <div className="flex items-center gap-1 sm:gap-2 group/volume flex-shrink-0">
                         <button 
                           onClick={() => setIsMuted(!isMuted)}
                           className="text-white hover:text-neon-pink cursor-pointer transition-colors p-1 sm:p-0 flex-shrink-0"
                           title={isMuted ? 'Unmute' : 'Mute'}
                         >
-                          {isMuted || volume === 0 ? <VolumeX size={16} className="sm:w-4.5 sm:h-4.5" /> : <Volume2 size={16} className="sm:w-4.5 sm:h-4.5" />}
+                          {isMuted || volume === 0 ? <VolumeX size={18} className="sm:w-5 sm:h-5" /> : <Volume2 size={18} className="sm:w-5 sm:h-5" />}
                         </button>
                         <input
                           type="range"
@@ -376,14 +376,14 @@ export default function MovieDetailPage({
                             setVolume(Number(e.target.value));
                             if (isMuted) setIsMuted(false);
                           }}
-                          className="w-0 sm:group-hover/volume:w-16 h-1 bg-white/[0.12] rounded-lg appearance-none cursor-pointer accent-white transition-all duration-300 hidden sm:block"
+                          className="w-0 sm:group-hover/volume:w-20 h-1.5 bg-white/[0.12] rounded-lg appearance-none cursor-pointer accent-white transition-all duration-300 hidden sm:block"
                         />
                       </div>
 
-                      {/* Stream Live Stats Display Toggle */}
+                      {/* Stream Live Stats Display Toggle - Hide on mobile */}
                       <button 
                         onClick={() => setShowStats(!showStats)}
-                        className={`text-[10px] sm:text-xs font-bold px-2 sm:px-2 py-1 rounded border transition-all cursor-pointer whitespace-nowrap ${
+                        className={`text-xs font-bold px-3 py-1.5 rounded border transition-all cursor-pointer whitespace-nowrap hidden sm:inline-block ${
                           showStats 
                             ? 'bg-neon-teal/10 text-neon-teal border-neon-teal/20' 
                             : 'bg-transparent text-gray-500 border-white/[0.06] hover:text-gray-300'
@@ -392,79 +392,10 @@ export default function MovieDetailPage({
                       >
                         HUD Stats
                       </button>
-                    </div>
 
-                    {/* Right Controls - Dropdowns */}
-                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                      {/* Subtitles dropdown */}
-                      <div className="relative flex-shrink-0">
-                        <button 
-                          onClick={() => {
-                            setShowSubtitlesDropdown(!showSubtitlesDropdown);
-                            setShowQualityDropdown(false);
-                          }}
-                          className="flex items-center gap-1 text-[10px] sm:text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl cursor-pointer min-w-fit"
-                          title="Subtitles"
-                        >
-                          <Globe size={11} className="sm:w-[13px] sm:h-[13px] flex-shrink-0" />
-                          <span className="hidden xs:inline">Subs: {selectedSubtitles.split(' ')[0]}</span>
-                          <span className="inline xs:hidden">S</span>
-                          <ChevronDown size={10} className="sm:w-3 sm:h-3" />
-                        </button>
-                        {showSubtitlesDropdown && (
-                          <div className="absolute bottom-full right-0 mb-2 w-40 bg-[#0e0b1c]/95 border border-white/[0.08] rounded-xl shadow-2xl overflow-hidden z-30">
-                            {['English [CC]', 'Spanish', 'French', 'Off'].map((subs) => (
-                              <button
-                                key={subs}
-                                onClick={() => {
-                                  setSelectedSubtitles(subs);
-                                  setShowSubtitlesDropdown(false);
-                                }}
-                                className="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-xs font-bold hover:bg-neon-pink/15 text-gray-300 hover:text-white flex items-center justify-between"
-                              >
-                                <span>{subs}</span>
-                                {selectedSubtitles === subs && <Check size={12} className="text-neon-pink" />}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                      <div className="flex-1" />
 
-                      {/* Resolution dropdown */}
-                      <div className="relative flex-shrink-0">
-                        <button 
-                          onClick={() => {
-                            setShowQualityDropdown(!showQualityDropdown);
-                            setShowSubtitlesDropdown(false);
-                          }}
-                          className="flex items-center gap-1 text-[10px] sm:text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl cursor-pointer min-w-fit"
-                          title="Video Quality"
-                        >
-                          <Sliders size={11} className="sm:w-[13px] sm:h-[13px] flex-shrink-0" />
-                          <span className="hidden xs:inline">{videoQuality.split(' ')[0]}</span>
-                          <span className="inline xs:hidden">Q</span>
-                          <ChevronDown size={10} className="sm:w-3 sm:h-3" />
-                        </button>
-                        {showQualityDropdown && (
-                          <div className="absolute bottom-full right-0 mb-2 w-40 bg-[#0e0b1c]/95 border border-white/[0.08] rounded-xl shadow-2xl overflow-hidden z-30">
-                            {['2160p 4K UHD', '1080p Ultra HD', '720p HD', 'Auto'].map((qual) => (
-                              <button
-                                key={qual}
-                                onClick={() => {
-                                  setVideoQuality(qual);
-                                  setShowQualityDropdown(false);
-                                }}
-                                className="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-xs font-bold hover:bg-neon-pink/15 text-gray-300 hover:text-white flex items-center justify-between"
-                              >
-                                <span>{qual}</span>
-                                {videoQuality === qual && <Check size={12} className="text-neon-pink" />}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Fullscreen */}
+                      {/* Fullscreen - Right aligned on desktop */}
                       <button 
                         onClick={() => {
                           const player = playerRef.current;
@@ -476,11 +407,149 @@ export default function MovieDetailPage({
                             }
                           }
                         }}
-                        className="text-white hover:text-neon-pink cursor-pointer transition-colors p-1 sm:p-0 flex-shrink-0"
+                        className="text-white hover:text-neon-pink cursor-pointer transition-colors p-1.5 flex-shrink-0"
                         title="Fullscreen"
                       >
-                        <Maximize size={16} className="sm:w-4.5 sm:h-4.5" />
+                        <Maximize size={18} className="sm:w-5 sm:h-5" />
                       </button>
+                    </div>
+
+                    {/* Second Row - Quality & Subs (mobile) or inline (desktop) */}
+                    <div className="flex items-center gap-2 sm:gap-3 sm:hidden">
+                      {/* Subtitles dropdown - Mobile Row */}
+                      <div className="relative flex-1">
+                        <button 
+                          onClick={() => {
+                            setShowSubtitlesDropdown(!showSubtitlesDropdown);
+                            setShowQualityDropdown(false);
+                          }}
+                          className="w-full flex items-center gap-1.5 text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] px-3 py-2 rounded-lg cursor-pointer"
+                          title="Subtitles"
+                        >
+                          <Globe size={13} className="flex-shrink-0" />
+                          <span className="flex-1 text-left">Subs</span>
+                          <ChevronDown size={12} className="flex-shrink-0" />
+                        </button>
+                        {showSubtitlesDropdown && (
+                          <div className="absolute bottom-full left-0 right-0 mb-2 bg-[#0e0b1c]/95 border border-white/[0.08] rounded-xl shadow-2xl overflow-hidden z-30">
+                            {['English [CC]', 'Spanish', 'French', 'Off'].map((subs) => (
+                              <button
+                                key={subs}
+                                onClick={() => {
+                                  setSelectedSubtitles(subs);
+                                  setShowSubtitlesDropdown(false);
+                                }}
+                                className="w-full text-left px-4 py-2.5 text-sm font-bold hover:bg-neon-pink/15 text-gray-300 hover:text-white flex items-center justify-between"
+                              >
+                                <span>{subs}</span>
+                                {selectedSubtitles === subs && <Check size={14} className="text-neon-pink" />}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Resolution dropdown - Mobile Row */}
+                      <div className="relative flex-1">
+                        <button 
+                          onClick={() => {
+                            setShowQualityDropdown(!showQualityDropdown);
+                            setShowSubtitlesDropdown(false);
+                          }}
+                          className="w-full flex items-center gap-1.5 text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] px-3 py-2 rounded-lg cursor-pointer"
+                          title="Video Quality"
+                        >
+                          <Sliders size={13} className="flex-shrink-0" />
+                          <span className="flex-1 text-left">Quality</span>
+                          <ChevronDown size={12} className="flex-shrink-0" />
+                        </button>
+                        {showQualityDropdown && (
+                          <div className="absolute bottom-full left-0 right-0 mb-2 bg-[#0e0b1c]/95 border border-white/[0.08] rounded-xl shadow-2xl overflow-hidden z-30">
+                            {['2160p 4K UHD', '1080p Ultra HD', '720p HD', 'Auto'].map((qual) => (
+                              <button
+                                key={qual}
+                                onClick={() => {
+                                  setVideoQuality(qual);
+                                  setShowQualityDropdown(false);
+                                }}
+                                className="w-full text-left px-4 py-2.5 text-sm font-bold hover:bg-neon-pink/15 text-gray-300 hover:text-white flex items-center justify-between"
+                              >
+                                <span>{qual}</span>
+                                {videoQuality === qual && <Check size={14} className="text-neon-pink" />}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Desktop-only right controls row */}
+                    <div className="hidden sm:flex items-center gap-3 justify-end">
+                      {/* Subtitles dropdown - Desktop */}
+                      <div className="relative flex-shrink-0">
+                        <button 
+                          onClick={() => {
+                            setShowSubtitlesDropdown(!showSubtitlesDropdown);
+                            setShowQualityDropdown(false);
+                          }}
+                          className="flex items-center gap-1.5 text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] px-3 py-1.5 rounded-xl cursor-pointer min-w-fit"
+                          title="Subtitles"
+                        >
+                          <Globe size={13} />
+                          <span>Subs: {selectedSubtitles.split(' ')[0]}</span>
+                          <ChevronDown size={12} />
+                        </button>
+                        {showSubtitlesDropdown && (
+                          <div className="absolute bottom-full right-0 mb-2 w-40 bg-[#0e0b1c]/95 border border-white/[0.08] rounded-xl shadow-2xl overflow-hidden z-30">
+                            {['English [CC]', 'Spanish', 'French', 'Off'].map((subs) => (
+                              <button
+                                key={subs}
+                                onClick={() => {
+                                  setSelectedSubtitles(subs);
+                                  setShowSubtitlesDropdown(false);
+                                }}
+                                className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-neon-pink/15 text-gray-300 hover:text-white flex items-center justify-between"
+                              >
+                                <span>{subs}</span>
+                                {selectedSubtitles === subs && <Check size={12} className="text-neon-pink" />}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Resolution dropdown - Desktop */}
+                      <div className="relative flex-shrink-0">
+                        <button 
+                          onClick={() => {
+                            setShowQualityDropdown(!showQualityDropdown);
+                            setShowSubtitlesDropdown(false);
+                          }}
+                          className="flex items-center gap-1.5 text-xs font-bold text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] px-3 py-1.5 rounded-xl cursor-pointer min-w-fit"
+                          title="Video Quality"
+                        >
+                          <Sliders size={13} />
+                          <span>{videoQuality.split(' ')[0]}</span>
+                          <ChevronDown size={12} />
+                        </button>
+                        {showQualityDropdown && (
+                          <div className="absolute bottom-full right-0 mb-2 w-40 bg-[#0e0b1c]/95 border border-white/[0.08] rounded-xl shadow-2xl overflow-hidden z-30">
+                            {['2160p 4K UHD', '1080p Ultra HD', '720p HD', 'Auto'].map((qual) => (
+                              <button
+                                key={qual}
+                                onClick={() => {
+                                  setVideoQuality(qual);
+                                  setShowQualityDropdown(false);
+                                }}
+                                className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-neon-pink/15 text-gray-300 hover:text-white flex items-center justify-between"
+                              >
+                                <span>{qual}</span>
+                                {videoQuality === qual && <Check size={12} className="text-neon-pink" />}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
