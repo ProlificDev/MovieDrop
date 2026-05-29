@@ -126,5 +126,23 @@ body {
   .text-neon-gradient {
     @apply bg-gradient-to-r from-neon-pink via-neon-magenta to-neon-teal bg-clip-text text-transparent font-extrabold;
   }
+
+  /* Mobile touch target - minimum 44x44px for accessibility */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+
+  /* Responsive font utilities for player controls */
+  @media (max-width: 640px) {
+    .player-sm-text {
+      @apply text-xs;
+    }
+  }
 }
 
+/* Prevent zoom on double tap for iOS */
+@media (hover: none) and (pointer: coarse) {
+  input[type="range"] {
+    pointer-events: auto;
+  }
+}

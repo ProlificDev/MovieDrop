@@ -8,6 +8,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '380px',
+      },
       colors: {
         // Vibrant custom palette
         'neon-pink': '#FF006E',
