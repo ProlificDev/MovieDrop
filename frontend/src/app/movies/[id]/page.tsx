@@ -87,7 +87,7 @@ export default function MovieDetailPage({
       return (
         ('ontouchstart' in window) ||
         (navigator.maxTouchPoints > 0) ||
-        (navigator.msMaxTouchPoints > 0)
+        ('msMaxTouchPoints' in navigator && (navigator as any).msMaxTouchPoints > 0)
       );
     };
     setIsTouchDevice(hasTouchSupport());
