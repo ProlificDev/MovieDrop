@@ -44,6 +44,10 @@ export default function MovieDetailPage({
   // Dropdown states
   const [showQualityDropdown, setShowQualityDropdown] = useState(false);
   const [showSubtitlesDropdown, setShowSubtitlesDropdown] = useState(false);
+  
+  // Touch/Mobile detection
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [showControlsOnMobile, setShowControlsOnMobile] = useState(true);
 
   const playerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -76,6 +80,18 @@ export default function MovieDetailPage({
     }
     loadMovieData();
   }, [movieId, shouldAutoPlay]);
+
+  // Detect touch device
+  useEffect(() => {
+    const hasTouchSupport = () => {
+      return (
+        ('ontouchstart' in window) ||
+        (navigator.maxTouchPoints > 0) ||
+        (navigator.msMaxTouchPoints > 0)
+      );
+    };
+    setIsTouchDevice(hasTouchSupport());
+  }, []);
 
   // Simulate video playback timer
   useEffect(() => {
@@ -298,7 +314,11 @@ export default function MovieDetailPage({
               </div>
 
               {/* Theater Canvas Container */}
-              <div className="relative w-full rounded-3xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,0.95)] border border-white/[0.1] bg-black" style={{aspectRatio: '16/9'}}>
+              <div 
+                className="relative w-full rounded-3xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,0.95)] border border-white/[0.1] bg-black" 
+                style={{aspectRatio: '16/9'}}
+                onTouchStart={() => isTouchDevice && setShowControlsOnMobile(true)}
+              >
                 {/* Full Movie Stream — sandbox blocks popup ads */}
                 {isPlayingVideo && (
                   <iframe
@@ -325,8 +345,14 @@ export default function MovieDetailPage({
                   </div>
                 )}
 
-                {/* Premium Control HUD overlay (Glassmorphic) */}
-                <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-3 sm:p-6 select-none opacity-0 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300">
+                {/* Premium Control HUD overlay (Glassmorphic) - Always visible on mobile/touch */}
+                <div 
+                  className={`absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-3 sm:p-6 select-none transition-opacity duration-300 ${
+                    isTouchDevice 
+                      ? 'opacity-100' 
+                      : 'opacity-0 hover:opacity-100 focus-within:opacity-100'
+                  }`}
+                >
                   {/* Scrubber Bar */}
                   <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                     <span className="text-[10px] sm:text-[11px] font-bold font-mono text-neon-pink bg-neon-pink/10 border border-neon-pink/20 px-1.5 sm:px-2 py-0.5 rounded flex-shrink-0">
