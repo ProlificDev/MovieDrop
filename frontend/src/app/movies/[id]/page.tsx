@@ -340,14 +340,10 @@ export default function MovieDetailPage({
                       title={`${movie.title} - Full Movie Stream`}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                       allowFullScreen
-                      webkitAllowFullscreen
                       sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation-by-user-activation"
                       className="w-full h-full absolute inset-0 z-0 border-0"
                       loading="lazy"
-                      style={{
-                        WebkitPlaysinline: 'true' as any,
-                        playsInline: true,
-                      } as React.CSSProperties}
+                      data-test="video-iframe"
                     />
                     {/* Mobile fallback message if iframe fails to load */}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none text-center p-4 text-xs sm:text-sm md:text-base">
