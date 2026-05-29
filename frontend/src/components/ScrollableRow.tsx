@@ -59,6 +59,9 @@ export default function ScrollableRow({
         {link && (
           <a
             href={link}
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             className="text-sm md:text-base font-extrabold text-neon-pink hover:text-neon-magenta hover:shadow-[0_0_10px_rgba(255,0,110,0.2)] px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] transition-smooth"
           >
             View All →

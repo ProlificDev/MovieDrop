@@ -95,6 +95,9 @@ export default function Navigation() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                   className="relative px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors duration-200"
                   style={{
                     color: active ? '#fff' : 'rgba(200,190,220,0.7)',
@@ -204,7 +207,10 @@ export default function Navigation() {
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200"
                 style={{
                   color: active ? '#fff' : 'rgba(200,190,220,0.75)',

@@ -75,13 +75,13 @@ export default function MovieCard({
 
             {/* Glowing Call to Actions */}
             <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center w-full justify-center">
-              <Link href={`/movies/${movie.id}?play=true`} className="w-full sm:w-auto">
+              <Link href={`/movies/${movie.id}?play=true`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full sm:w-auto">
                 <button className="btn-neon-pink flex items-center justify-center gap-2.5 w-full cursor-pointer">
                   <Play size={20} fill="currentColor" />
                   Stream Movie Now 🍿
                 </button>
               </Link>
-              <Link href={`/movies/${movie.id}`} className="w-full sm:w-auto">
+              <Link href={`/movies/${movie.id}`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full sm:w-auto">
                 <button className="btn-neon-outline flex items-center justify-center gap-2.5 w-full cursor-pointer">
                   View Story & Details
                 </button>
@@ -94,7 +94,7 @@ export default function MovieCard({
             {/* Background Glow */}
             <div className="absolute w-72 h-96 bg-neon-pink/25 rounded-full blur-[100px] pointer-events-none -rotate-12" />
             
-            <Link href={`/movies/${movie.id}`} className="group/poster block relative">
+            <Link href={`/movies/${movie.id}`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="group/poster block relative">
               <div className="relative w-80 h-[480px] rounded-2xl overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] border border-white/[0.12] transition-all duration-500 group-hover/poster:scale-[1.03] group-hover/poster:-rotate-2 group-hover/poster:shadow-[0_30px_70px_-10px_rgba(255,0,110,0.25)]">
                 <Image
                   src={movie.posterPath}
@@ -116,7 +116,7 @@ export default function MovieCard({
   }
 
   return (
-    <Link href={`/movies/${movie.id}`} className={isScroll ? 'flex-shrink-0' : 'w-full'}>
+    <Link href={`/movies/${movie.id}`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={isScroll ? 'flex-shrink-0' : 'w-full'}>
       <div
         className={`relative group cursor-pointer transition-all duration-300 hover:scale-[1.03] ${isScroll ? 'w-48' : 'w-full'}`}
         onMouseEnter={() => setIsHovered(true)}
