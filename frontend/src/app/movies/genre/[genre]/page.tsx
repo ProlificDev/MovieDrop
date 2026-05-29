@@ -2,10 +2,9 @@
 
 import MovieCard from '@/components/MovieCard';
 import Link from 'next/link';
-import {
-  getMoviesByGenre,
-  GENRES,
-} from '@/lib/mockMovies';
+import { useEffect, useState } from 'react';
+import { getLiveMoviesByGenre } from '@/lib/movies';
+import { Movie } from '@/lib/mockMovies';
 import { ChevronRight } from 'lucide-react';
 
 interface GenrePageProps {
@@ -18,65 +17,52 @@ export default function GenrePage({
   const genreName = decodeURIComponent(
     params.genre.replace(/-/g, ' ')
   );
-  const normalizedGenre = GENRES.find(
-    (g) => g.toLowerCase() === genreName.toLowerCase()
-  );
 
-  if (!normalizedGenre) {
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadMoviesByGenre() {
+      try {
+        const genreMovies = await getLiveMoviesByGenre(genreName);
+        setMovies(genreMovies);
+      } catch (err) {
+        console.error(`Error loading movies for genre ${genreName}:`, err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadMoviesByGenre();
+  }, [genreName]);
+
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#06040d] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Genre Not Found
-          </h1>
-          <p className="text-gray-400 mb-6">
-            The genre you&apos;re looking for doesn&apos;t exist.
-          </p>
-          <Link href="/" className="text-red-500 hover:text-red-400">
-            Back to Home →
-          </Link>
+          <div className="animate-spin w-12 h-12 border-4 border-neon-pink border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-gray-400">Loading {genreName} movies...</p>
         </div>
       </div>
     );
   }
 
-  const movies = getMoviesByGenre(normalizedGenre);
-
   return (
-    <div className="bg-slate-950 min-h-screen">
+    <div className="bg-[#06040d] min-h-screen">
       <div className="max-w-7xl mx-auto px-6 py-20">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-5xl font-bold text-white mb-4">
-            {normalizedGenre}
-          </h1>
+          <h1 className="text-5xl font-bold text-white mb-4">{genreName}</h1>
           <p className="text-gray-400 text-lg">
-            {movies.length} {movies.length === 1 ? 'movie' : 'movies'}
+            {movies.length} {movies.length === 1 ? 'movie' : 'movies'} in this category
           </p>
-        </div>
-
-        {/* Genre Filter Tabs */}
-        <div className="mb-12 overflow-x-auto pb-4">
-          <div className="flex gap-3">
-            {GENRES.map((genre) => (
-              <Link
-                key={genre}
-                href={`/movies/genre/${genre.toLowerCase().replace(/ /g, '-')}`}
-                className={`whitespace-nowrap px-6 py-3 rounded-full font-semibold transition-colors ${
-                  genre === normalizedGenre
-                    ? 'bg-red-600 text-white'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
-              >
-                {genre}
-              </Link>
-            ))}
-          </div>
+          <Link href="/" className="text-neon-pink hover:text-neon-magenta inline-flex items-center gap-2 mt-6 transition-colors">
+            Back to Home <ChevronRight size={18} />
+          </Link>
         </div>
 
         {/* Movies Grid */}
         {movies.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 md:gap-8">
             {movies.map((movie) => (
               <div key={movie.id} className="flex justify-center">
                 <MovieCard movie={movie} />
@@ -84,21 +70,14 @@ export default function GenrePage({
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center py-28 bg-white/[0.01] border border-white/[0.04] rounded-3xl backdrop-blur-md">
             <div className="text-center">
-              <p className="text-2xl font-bold text-gray-400 mb-2">
-                No movies in this genre yet
+              <p className="text-2xl font-black text-white mb-2">
+                No {genreName} movies found
               </p>
-              <p className="text-gray-500 mb-6">
-                Check back later for new releases
+              <p className="text-gray-400 text-sm">
+                Check back soon for more releases.
               </p>
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 text-red-500 hover:text-red-400 font-semibold"
-              >
-                Back to Home
-                <ChevronRight size={20} />
-              </Link>
             </div>
           </div>
         )}
