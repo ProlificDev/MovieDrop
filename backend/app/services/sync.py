@@ -1,185 +1,183 @@
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Dict, Any, Set, List
+from typing import Dict, Any, Set
 from supabase import create_client, Client
 from app.main import settings
 from app.services.tmdb import TMDBClient
 
 logger = logging.getLogger("cinepulse.sync")
 
+# All categories fetch movies from this year
+SYNC_YEAR = 2025
+
+
 class SyncService:
     """
-    Service responsible for executing the movie pipeline: fetching upcoming films from TMDB, 
-    hydrating cast/trailer information, and upserting the parsed records into Supabase.
+    Executes the movie pipeline: fetches 2025 films from TMDB,
+    hydrates cast/trailer/watch-provider data, and upserts into Supabase.
     """
+
     def __init__(self):
-        # Verify database variables are available
         if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY:
-            raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables are required.")
-        
-        # Instantiate Supabase Client using the service role key to bypass RLS policies
+            raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.")
+
         self.supabase: Client = create_client(
             settings.SUPABASE_URL,
-            settings.SUPABASE_SERVICE_ROLE_KEY
+            settings.SUPABASE_SERVICE_ROLE_KEY,
         )
-        # Instantiate TMDB API client
         self.tmdb = TMDBClient(api_key=settings.TMDB_API_KEY)
+
+    async def clear_all_movies(self) -> int:
+        """
+        Deletes every row in the movies table before a fresh sync.
+        Returns the number of rows deleted.
+        """
+        try:
+            response = self.supabase.table("movies").delete().gte("id", 0).execute()
+            count = len(response.data) if response.data else 0
+            logger.info(f"Cleared {count} existing movie records.")
+            return count
+        except Exception as e:
+            logger.error(f"Failed to clear movies table: {e}")
+            raise
 
     async def get_recently_synced_ids(self) -> Set[int]:
         """
-        Queries the database to find which movie records were already successfully 
-        upserted/updated in the last 24 hours. Helps make the job resumable and network-efficient.
+        Returns IDs of movies already synced in the last 24 hours (for resumability).
         """
         try:
-            # 24 hours ago timestamp formatted in ISO-8601
-            cutoff_time = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
-            
-            # Select IDs of movies modified after the cutoff time
-            response = self.supabase.table("movies") \
-                .select("id") \
-                .gte("updated_at", cutoff_time) \
+            cutoff = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+            response = (
+                self.supabase.table("movies")
+                .select("id")
+                .gte("updated_at", cutoff)
                 .execute()
-                
-            synced_ids = {int(row["id"]) for row in response.data}
-            logger.info(f"Resumability check: Found {len(synced_ids)} movies already synced within the last 24 hours.")
-            return synced_ids
+            )
+            ids = {int(row["id"]) for row in response.data}
+            logger.info(f"Resumability: {len(ids)} movies already synced in last 24h.")
+            return ids
         except Exception as e:
-            logger.error(f"Error querying recently synced movies: {str(e)}. Proceeding with full sync.")
+            logger.error(f"Could not query recently synced IDs: {e}. Doing full sync.")
             return set()
 
-    async def sync_pipeline(self, max_pages: int = 3) -> Dict[str, Any]:
+    async def sync_pipeline(self, max_pages: int = 3, skip_recent: bool = True) -> Dict[str, Any]:
         """
-        Executes the full multi-category synchronization pipeline.
-        Fetches movies from all 4 TMDB endpoints: upcoming, now_playing, popular, top_rated.
-        """
-        logger.info("Initializing Multi-Category Movie Sync Pipeline...")
+        Full multi-category sync pipeline.
+        Fetches SYNC_YEAR movies across all 4 categories from TMDB.
 
-        # Categories mapped to their TMDB endpoint names
+        Args:
+            max_pages:    How many TMDB pages to fetch per category (20 movies/page).
+            skip_recent:  If True, skip movies already synced in the last 24h.
+                          Set to False after a clear_all_movies() call.
+        """
+        logger.info(f"Starting sync pipeline — year={SYNC_YEAR}, max_pages={max_pages}")
+
         CATEGORIES = {
-            "upcoming": "upcoming",
+            "upcoming":   "upcoming",
             "now-playing": "now_playing",
-            "popular": "popular",
-            "top-rated": "top_rated",
+            "popular":    "popular",
+            "top-rated":  "top_rated",
         }
-        
-        summary = {
+
+        summary: Dict[str, Any] = {
             "status": "success",
+            "sync_year": SYNC_YEAR,
             "total_fetched": 0,
             "processed": 0,
             "upserted": 0,
             "skipped": 0,
             "failed": 0,
             "by_category": {},
-            "errors": []
+            "errors": [],
         }
 
-        # 1. Fetch recently synced movies to facilitate job resumability
-        recently_synced = await self.get_recently_synced_ids()
+        recently_synced = await self.get_recently_synced_ids() if skip_recent else set()
 
-        for category_key, tmdb_endpoint in CATEGORIES.items():
-            logger.info(f"\n{'='*50}")
-            logger.info(f"Syncing category: {category_key} (TMDB endpoint: /movie/{tmdb_endpoint})")
-            logger.info(f"{'='*50}")
+        for category_key in CATEGORIES:
+            logger.info(f"\n{'='*50}\nCategory: {category_key}\n{'='*50}")
+            cat = {"fetched": 0, "upserted": 0, "skipped": 0, "failed": 0}
 
-            cat_summary = {"fetched": 0, "upserted": 0, "skipped": 0, "failed": 0}
-
-            # 2. Gather paginated movie list from TMDB for this category
+            # ── Fetch paginated movie stubs from TMDB ──────────────────────
             movie_list = []
-            current_page = 1
+            page = 1
             total_pages = 1
-
             try:
-                while current_page <= total_pages and current_page <= max_pages:
-                    logger.info(f"  [{category_key}] Page {current_page}/{min(total_pages, max_pages)}")
-                    
-                    # Use discover endpoint with year filter for ALL categories
-                    # to guarantee movies have had time to reach streaming services
-                    if tmdb_endpoint in ("now_playing", "popular"):
-                        data = await self.tmdb.get_discover_movies(page=current_page, year=2023)
-                    else:  # upcoming, top_rated
-                        data = await self.tmdb.get_discover_movies(page=current_page, year=2024)
-                    
-                    results = data.get("results", [])
-                    movie_list.extend(results)
-                    
+                while page <= total_pages and page <= max_pages:
+                    logger.info(f"  [{category_key}] Fetching page {page}")
+                    data = await self.tmdb.get_discover_movies(page=page, year=SYNC_YEAR)
+                    movie_list.extend(data.get("results", []))
                     total_pages = data.get("total_pages", 1)
-                    current_page += 1
-                
-                cat_summary["fetched"] = len(movie_list)
+                    page += 1
+
+                cat["fetched"] = len(movie_list)
                 summary["total_fetched"] += len(movie_list)
-                logger.info(f"  [{category_key}] Fetched {len(movie_list)} movie stubs.")
+                logger.info(f"  [{category_key}] {len(movie_list)} stubs fetched.")
             except Exception as e:
-                logger.error(f"  [{category_key}] Failed to fetch movie list: {str(e)}")
-                summary["errors"].append(f"{category_key} fetch error: {str(e)}")
+                logger.error(f"  [{category_key}] Fetch failed: {e}")
+                summary["errors"].append(f"{category_key} fetch: {e}")
                 continue
 
-            # 3. Iterate through movies, hydrate details, and upsert with category tag
-            for movie_stub in movie_list:
-                movie_id = movie_stub.get("id")
+            # ── Hydrate each movie and upsert ──────────────────────────────
+            for stub in movie_list:
+                movie_id = stub.get("id")
                 if not movie_id:
                     continue
 
                 summary["processed"] += 1
 
-                # Skip if already synced recently
                 if movie_id in recently_synced:
                     summary["skipped"] += 1
-                    cat_summary["skipped"] += 1
+                    cat["skipped"] += 1
                     continue
 
                 try:
-                    logger.info(f"  [{category_key}] Hydrating movie ID {movie_id} ('{movie_stub.get('title')}')")
+                    logger.info(f"  [{category_key}] Hydrating {movie_id} '{stub.get('title')}'")
                     details = await self.tmdb.get_movie_details(movie_id)
 
                     trailer_url = self.tmdb.extract_youtube_trailer(details)
                     top_cast = self.tmdb.extract_top_cast(details, limit=5)
 
-                    # Fetch watch providers (streaming availability)
                     try:
                         watch_providers = await self.tmdb.get_watch_providers(movie_id)
                     except Exception:
                         watch_providers = {}
 
-                    release_date = details.get("release_date") or None
                     payload = {
                         "id": movie_id,
                         "title": details.get("title"),
                         "overview": details.get("overview"),
-                        "release_date": release_date,
+                        "release_date": details.get("release_date") or None,
                         "poster_path": details.get("poster_path"),
                         "backdrop_path": details.get("backdrop_path"),
-                        "vote_average": round(float(details.get("vote_average", 0.0)), 1) if details.get("vote_average") is not None else 0.0,
+                        "vote_average": round(float(details.get("vote_average") or 0.0), 1),
                         "genres": details.get("genres", []),
                         "trailer_url": trailer_url,
                         "cast": top_cast,
-                        "popularity": float(details.get("popularity", 0.0)),
+                        "popularity": float(details.get("popularity") or 0.0),
+                        "runtime": details.get("runtime") or 0,
                         "category": category_key,
                         "watch_providers": watch_providers,
-                        "runtime": details.get("runtime") or 0,
                     }
 
                     self.supabase.table("movies").upsert(payload).execute()
                     summary["upserted"] += 1
-                    cat_summary["upserted"] += 1
-                    recently_synced.add(movie_id)  # prevent re-processing across categories
-                    logger.info(f"  [{category_key}] Upserted movie ID {movie_id} - '{details.get('title')}'")
+                    cat["upserted"] += 1
+                    recently_synced.add(movie_id)
+                    logger.info(f"  [{category_key}] ✓ Upserted {movie_id} '{details.get('title')}'")
 
                 except Exception as e:
                     summary["failed"] += 1
-                    cat_summary["failed"] += 1
-                    err_msg = f"[{category_key}] Sync failed for movie ID {movie_id}: {str(e)}"
-                    logger.error(f"  {err_msg}")
-                    summary["errors"].append(err_msg)
+                    cat["failed"] += 1
+                    msg = f"[{category_key}] movie {movie_id}: {e}"
+                    logger.error(f"  {msg}")
+                    summary["errors"].append(msg)
 
-            summary["by_category"][category_key] = cat_summary
+            summary["by_category"][category_key] = cat
 
         logger.info(
-            f"\nMulti-Category Sync Pipeline Completed. "
-            f"Total Fetched: {summary['total_fetched']} | "
-            f"Processed: {summary['processed']} | "
-            f"Upserted: {summary['upserted']} | "
-            f"Skipped: {summary['skipped']} | "
-            f"Failed: {summary['failed']}"
+            f"\nSync done — fetched={summary['total_fetched']} "
+            f"upserted={summary['upserted']} "
+            f"skipped={summary['skipped']} "
+            f"failed={summary['failed']}"
         )
         return summary
-
