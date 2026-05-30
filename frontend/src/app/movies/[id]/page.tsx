@@ -50,6 +50,7 @@ export default function MovieDetailPage({
   const [showControlsOnMobile, setShowControlsOnMobile] = useState(true);
   const [currentStreamUrl, setCurrentStreamUrl] = useState(`https://vidsrc.me/embed/movie?tmdb=${movieId}`);
   const [isUsingTrailerFallback, setIsUsingTrailerFallback] = useState(false);
+  const [streamHasError, setStreamHasError] = useState(false);
 
   const playerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -57,6 +58,7 @@ export default function MovieDetailPage({
   useEffect(() => {
     setCurrentStreamUrl(`https://vidsrc.me/embed/movie?tmdb=${movieId}`);
     setIsUsingTrailerFallback(false);
+    setStreamHasError(false);
 
     async function loadMovieData() {
       try {
@@ -169,6 +171,14 @@ export default function MovieDetailPage({
   const streamUrl = currentStreamUrl;
   const fullMovieUrl = `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
   const trailerUrl = movie?.trailerUrl;
+
+  const handleUseTrailerFallback = () => {
+    if (trailerUrl) {
+      setCurrentStreamUrl(trailerUrl);
+      setIsUsingTrailerFallback(true);
+      setStreamHasError(false);
+    }
+  };
 
   return (
     <div className={`bg-[#06040d] min-h-screen text-[#f1ecfa] relative transition-all duration-700 ${theaterDimmed ? 'bg-[#000000]/98' : ''}`}>
@@ -355,17 +365,41 @@ export default function MovieDetailPage({
                         if (!isUsingTrailerFallback && trailerUrl) {
                           setCurrentStreamUrl(trailerUrl);
                           setIsUsingTrailerFallback(true);
+                          setStreamHasError(true);
                           console.warn('Falling back to trailer embed because full movie stream failed to load.');
                         }
                       }}
                     />
-                    {/* Mobile fallback message if iframe fails to load */}
+                    {streamHasError && trailerUrl && (
+                      <div className="absolute inset-x-0 bottom-0 z-30 p-4 bg-black/90 text-center text-sm text-gray-200">
+                        <p className="mb-2">The full movie stream is unavailable. Switching to the trailer preview now.</p>
+                        <button
+                          onClick={handleUseTrailerFallback}
+                          className="rounded-full bg-neon-pink px-4 py-2 text-xs font-bold uppercase tracking-wide text-white hover:bg-neon-pink/90"
+                        >
+                          Watch Trailer Preview
+                        </button>
+                      </div>
+                    )}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none text-center p-4 text-xs sm:text-sm md:text-base">
                       <div className="hidden sm:block text-gray-400">
                         <p>Loading stream...</p>
                       </div>
                     </div>
                   </>
+                )}
+
+                {/* Full movie fallback hint */}
+                {!isUsingTrailerFallback && trailerUrl && (
+                  <div className="absolute top-4 right-4 z-30 rounded-2xl bg-black/80 p-3 text-[10px] text-gray-300 sm:text-xs backdrop-blur-lg">
+                    <p className="mb-2 text-right">If the full movie embed fails, switch to the trailer preview.</p>
+                    <button
+                      onClick={handleUseTrailerFallback}
+                      className="w-full rounded-full bg-neon-pink px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white hover:bg-neon-pink/90"
+                    >
+                      Trailer Preview
+                    </button>
+                  </div>
                 )}
 
                 {/* Custom Cinematic overlay covering player when paused */}
