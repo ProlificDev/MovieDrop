@@ -48,15 +48,28 @@ export default function MovieDetailPage({
   // Touch/Mobile detection
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [showControlsOnMobile, setShowControlsOnMobile] = useState(true);
-  const [currentStreamUrl, setCurrentStreamUrl] = useState(`https://vidsrc.me/embed/movie?tmdb=${movieId}`);
+  
+  // Free embed provider sources (rotating fallbacks)
+  const freeProviders = [
+    { name: 'VidSrc.me', url: (id: number) => `https://vidsrc.me/embed/movie?tmdb=${id}` },
+    { name: 'VidSrc.xyz', url: (id: number) => `https://vidsrc.xyz/embed/movie/${id}` },
+    { name: '2Embed', url: (id: number) => `https://www.2embed.org/embed/${id}` },
+    { name: 'MultiEmbed', url: (id: number) => `https://multiembed.mov/?video_id=${id}&tmdb=1` },
+  ];
+  
+  const [providerIndex, setProviderIndex] = useState(0);
+  const [currentStreamUrl, setCurrentStreamUrl] = useState(freeProviders[0].url(movieId));
   const [isUsingTrailerFallback, setIsUsingTrailerFallback] = useState(false);
   const [streamHasError, setStreamHasError] = useState(false);
+  const [currentProviderName, setCurrentProviderName] = useState(freeProviders[0].name);
 
   const playerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    setCurrentStreamUrl(`https://vidsrc.me/embed/movie?tmdb=${movieId}`);
+    setProviderIndex(0);
+    setCurrentStreamUrl(freeProviders[0].url(movieId));
+    setCurrentProviderName(freeProviders[0].name);
     setIsUsingTrailerFallback(false);
     setStreamHasError(false);
 
@@ -171,6 +184,17 @@ export default function MovieDetailPage({
   const streamUrl = currentStreamUrl;
   const fullMovieUrl = `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
   const trailerUrl = movie?.trailerUrl;
+
+  const handleSwitchProvider = (nextIndex: number) => {
+    if (nextIndex < freeProviders.length) {
+      const newUrl = freeProviders[nextIndex].url(movieId);
+      setCurrentStreamUrl(newUrl);
+      setProviderIndex(nextIndex);
+      setCurrentProviderName(freeProviders[nextIndex].name);
+      setStreamHasError(false);
+      setIsUsingTrailerFallback(false);
+    }
+  };
 
   const handleUseTrailerFallback = () => {
     if (trailerUrl) {
@@ -362,25 +386,18 @@ export default function MovieDetailPage({
                       loading="lazy"
                       data-test="video-iframe"
                       onError={() => {
-                        if (!isUsingTrailerFallback && trailerUrl) {
+                        setStreamHasError(true);
+                        const nextProviderIndex = providerIndex + 1;
+                        if (nextProviderIndex < freeProviders.length && !isUsingTrailerFallback) {
+                          console.warn(`Provider ${currentProviderName} failed. Trying ${freeProviders[nextProviderIndex].name}...`);
+                          handleSwitchProvider(nextProviderIndex);
+                        } else if (!isUsingTrailerFallback && trailerUrl) {
                           setCurrentStreamUrl(trailerUrl);
                           setIsUsingTrailerFallback(true);
-                          setStreamHasError(true);
-                          console.warn('Falling back to trailer embed because full movie stream failed to load.');
+                          console.warn('All providers exhausted. Falling back to trailer embed.');
                         }
                       }}
                     />
-                    {streamHasError && trailerUrl && (
-                      <div className="absolute inset-x-0 bottom-0 z-30 p-4 bg-black/90 text-center text-sm text-gray-200">
-                        <p className="mb-2">The full movie stream is unavailable. Switching to the trailer preview now.</p>
-                        <button
-                          onClick={handleUseTrailerFallback}
-                          className="rounded-full bg-neon-pink px-4 py-2 text-xs font-bold uppercase tracking-wide text-white hover:bg-neon-pink/90"
-                        >
-                          Watch Trailer Preview
-                        </button>
-                      </div>
-                    )}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none text-center p-4 text-xs sm:text-sm md:text-base">
                       <div className="hidden sm:block text-gray-400">
                         <p>Loading stream...</p>
@@ -389,16 +406,37 @@ export default function MovieDetailPage({
                   </>
                 )}
 
-                {/* Full movie fallback hint */}
-                {!isUsingTrailerFallback && trailerUrl && (
-                  <div className="absolute top-4 right-4 z-30 rounded-2xl bg-black/80 p-3 text-[10px] text-gray-300 sm:text-xs backdrop-blur-lg">
-                    <p className="mb-2 text-right">If the full movie embed fails, switch to the trailer preview.</p>
-                    <button
-                      onClick={handleUseTrailerFallback}
-                      className="w-full rounded-full bg-neon-pink px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white hover:bg-neon-pink/90"
-                    >
-                      Trailer Preview
-                    </button>
+                {/* Provider selector and fallback options */}
+                {!isUsingTrailerFallback && (
+                  <div className="absolute top-4 right-4 z-30 rounded-2xl bg-black/80 p-3 text-[10px] text-gray-300 sm:text-xs backdrop-blur-lg max-w-xs">
+                    <p className="mb-2 text-right font-semibold">Provider: {currentProviderName}</p>
+                    {streamHasError && (
+                      <p className="mb-2 text-right text-neon-pink text-[9px]">Stream unavailable. Try another:</p>
+                    )}
+                    <div className="flex flex-col gap-1.5">
+                      {freeProviders.map((provider, idx) => (
+                        <button
+                          key={provider.name}
+                          onClick={() => handleSwitchProvider(idx)}
+                          disabled={idx === providerIndex}
+                          className={`rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide transition-all ${
+                            idx === providerIndex
+                              ? 'bg-neon-pink text-white'
+                              : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                          } disabled:opacity-70`}
+                        >
+                          {provider.name}
+                        </button>
+                      ))}
+                    </div>
+                    {trailerUrl && (
+                      <button
+                        onClick={handleUseTrailerFallback}
+                        className="w-full rounded-full bg-white/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wide text-gray-300 hover:bg-white/30 mt-2"
+                      >
+                        Trailer Preview
+                      </button>
+                    )}
                   </div>
                 )}
 
