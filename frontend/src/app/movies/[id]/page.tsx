@@ -51,10 +51,12 @@ export default function MovieDetailPage({
   
   // Free embed provider sources (rotating fallbacks)
   const freeProviders = [
+    { name: 'VidPlay', url: (id: number) => `https://vidplay.site/embed/movie/${id}` },
+    { name: 'Embed.su', url: (id: number) => `https://embed.su/embed/movie/${id}` },
     { name: 'VidSrc.me', url: (id: number) => `https://vidsrc.me/embed/movie?tmdb=${id}` },
     { name: 'VidSrc.xyz', url: (id: number) => `https://vidsrc.xyz/embed/movie/${id}` },
     { name: '2Embed', url: (id: number) => `https://www.2embed.org/embed/${id}` },
-    { name: 'MultiEmbed', url: (id: number) => `https://multiembed.mov/?video_id=${id}&tmdb=1` },
+    { name: 'Streamsb', url: (id: number) => `https://sb.vidsrc.stream/embed/${id}` },
   ];
   
   const [providerIndex, setProviderIndex] = useState(0);
@@ -65,6 +67,7 @@ export default function MovieDetailPage({
 
   const playerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const providerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setProviderIndex(0);
@@ -131,14 +134,29 @@ export default function MovieDetailPage({
           return Number(Math.max(12.5, Math.min(19.2, next)).toFixed(1));
         });
       }, 1000);
+
+      // Auto-switch provider if content doesn't load after 8 seconds
+      providerTimeoutRef.current = setTimeout(() => {
+        const nextProviderIndex = providerIndex + 1;
+        if (nextProviderIndex < freeProviders.length && !isUsingTrailerFallback) {
+          console.warn(`Provider timeout: ${currentProviderName} failed to load. Trying ${freeProviders[nextProviderIndex].name}...`);
+          handleSwitchProvider(nextProviderIndex);
+        } else if (!isUsingTrailerFallback && trailerUrl) {
+          setCurrentStreamUrl(trailerUrl);
+          setIsUsingTrailerFallback(true);
+          console.warn('All providers exhausted. Falling back to trailer embed.');
+        }
+      }, 8000);
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (providerTimeoutRef.current) clearTimeout(providerTimeoutRef.current);
     }
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (providerTimeoutRef.current) clearTimeout(providerTimeoutRef.current);
     };
-  }, [isPlayingVideo, isPlaying, duration]);
+  }, [isPlayingVideo, isPlaying, duration, providerIndex, currentProviderName, isUsingTrailerFallback, trailerUrl, freeProviders]);
 
   // Auto-scroll to player on mobile when playing
   useEffect(() => {
@@ -381,15 +399,23 @@ export default function MovieDetailPage({
                       title={`${movie.title} - ${isUsingTrailerFallback ? 'Trailer Preview' : 'Full Movie Stream'}`}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                       allowFullScreen
-                      sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation-by-user-activation"
+                      sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation-by-user-activation allow-pointer-lock"
                       className="w-full h-full absolute inset-0 z-0 border-0"
                       loading="lazy"
                       data-test="video-iframe"
+                      onLoad={() => {
+                        console.log(`✓ Provider loaded: ${currentProviderName}`);
+                        // Clear timeout if iframe loads successfully
+                        if (providerTimeoutRef.current) {
+                          clearTimeout(providerTimeoutRef.current);
+                        }
+                      }}
                       onError={() => {
+                        console.error(`✗ Provider error: ${currentProviderName}`);
                         setStreamHasError(true);
                         const nextProviderIndex = providerIndex + 1;
                         if (nextProviderIndex < freeProviders.length && !isUsingTrailerFallback) {
-                          console.warn(`Provider ${currentProviderName} failed. Trying ${freeProviders[nextProviderIndex].name}...`);
+                          console.warn(`Trying next provider: ${freeProviders[nextProviderIndex].name}...`);
                           handleSwitchProvider(nextProviderIndex);
                         } else if (!isUsingTrailerFallback && trailerUrl) {
                           setCurrentStreamUrl(trailerUrl);
