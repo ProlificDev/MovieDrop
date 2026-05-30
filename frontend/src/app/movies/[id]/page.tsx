@@ -407,38 +407,7 @@ export default function MovieDetailPage({
                 )}
 
                 {/* Provider selector and fallback options */}
-                {!isUsingTrailerFallback && (
-                  <div className="absolute top-4 right-4 z-30 rounded-2xl bg-black/80 p-3 text-[10px] text-gray-300 sm:text-xs backdrop-blur-lg max-w-xs">
-                    <p className="mb-2 text-right font-semibold">Provider: {currentProviderName}</p>
-                    {streamHasError && (
-                      <p className="mb-2 text-right text-neon-pink text-[9px]">Stream unavailable. Try another:</p>
-                    )}
-                    <div className="flex flex-col gap-1.5">
-                      {freeProviders.map((provider, idx) => (
-                        <button
-                          key={provider.name}
-                          onClick={() => handleSwitchProvider(idx)}
-                          disabled={idx === providerIndex}
-                          className={`rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide transition-all ${
-                            idx === providerIndex
-                              ? 'bg-neon-pink text-white'
-                              : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                          } disabled:opacity-70`}
-                        >
-                          {provider.name}
-                        </button>
-                      ))}
-                    </div>
-                    {trailerUrl && (
-                      <button
-                        onClick={handleUseTrailerFallback}
-                        className="w-full rounded-full bg-white/20 px-3 py-1 text-[9px] font-bold uppercase tracking-wide text-gray-300 hover:bg-white/30 mt-2"
-                      >
-                        Trailer Preview
-                      </button>
-                    )}
-                  </div>
-                )}
+                {/* Hidden - automatic fallback only */}
 
                 {/* Custom Cinematic overlay covering player when paused */}
                 {!isPlayingVideo && (
