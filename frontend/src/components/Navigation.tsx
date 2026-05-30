@@ -7,10 +7,8 @@ import { Menu, X } from 'lucide-react';
 
 const navLinks = [
   { name: 'Home', href: '/' },
-  { name: 'Upcoming', href: '/movies/upcoming' },
   { name: 'Now Playing', href: '/movies/now-playing' },
-  { name: 'Popular', href: '/movies/popular' },
-  { name: 'Top Rated', href: '/movies/top-rated' },
+  { name: 'Upcoming', href: '/movies/upcoming' },
 ];
 
 const NAV_HEIGHT = 64; // px — single source of truth

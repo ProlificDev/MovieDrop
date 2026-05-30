@@ -7,12 +7,10 @@ import { useState } from 'react';
 interface CategoryPageProps {
   title: string;
   movies: Movie[];
+  trailerOnly?: boolean;
 }
 
-export default function CategoryPage({
-  title,
-  movies,
-}: CategoryPageProps) {
+export default function CategoryPage({ title, movies, trailerOnly = false }: CategoryPageProps) {
   // Extract unique genres from all movies
   const allGenres = Array.from(
     new Set(movies.flatMap(movie => movie.genres))
@@ -71,7 +69,7 @@ export default function CategoryPage({
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 md:gap-8">
           {filteredMovies.map((movie) => (
             <div key={movie.id} className="flex justify-center">
-              <MovieCard movie={movie} />
+              <MovieCard movie={movie} trailerOnly={trailerOnly} />
             </div>
           ))}
         </div>

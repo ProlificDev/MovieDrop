@@ -12,10 +12,6 @@ SYNC_YEAR = 2025
 
 
 class SyncService:
-    """
-    Executes the movie pipeline: fetches 2025 films from TMDB,
-    hydrates cast/trailer/watch-provider data, and upserts into Supabase.
-    """
 
     def __init__(self):
         if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY:
@@ -72,11 +68,11 @@ class SyncService:
         """
         logger.info(f"Starting sync pipeline — year={SYNC_YEAR}, max_pages={max_pages}")
 
+        # now-playing  → 2025 releases sorted by popularity (already out)
+        # upcoming     → future release dates sorted by release date ascending
         CATEGORIES = {
-            "upcoming":   "upcoming",
             "now-playing": "now_playing",
-            "popular":    "popular",
-            "top-rated":  "top_rated",
+            "upcoming":    "upcoming",
         }
 
         summary: Dict[str, Any] = {
@@ -104,7 +100,12 @@ class SyncService:
             try:
                 while page <= total_pages and page <= max_pages:
                     logger.info(f"  [{category_key}] Fetching page {page}")
-                    data = await self.tmdb.get_discover_movies(page=page, year=SYNC_YEAR)
+                    if category_key == "now-playing":
+                        # 2025 releases already out, sorted by popularity
+                        data = await self.tmdb.get_discover_movies(page=page, year=SYNC_YEAR)
+                    else:
+                        # upcoming: future release dates, sorted by release date
+                        data = await self.tmdb.get_upcoming_movies_filtered(page=page)
                     movie_list.extend(data.get("results", []))
                     total_pages = data.get("total_pages", 1)
                     page += 1

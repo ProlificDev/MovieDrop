@@ -9,5 +9,5 @@ export const metadata = {
 export default async function UpcomingPage() {
   const upcomingMovies = await getLiveMoviesByCategory('upcoming');
 
-  return <CategoryPage title="Upcoming Releases" movies={upcomingMovies} />;
+  return <CategoryPage title="Coming Soon" movies={upcomingMovies} trailerOnly />;
 }

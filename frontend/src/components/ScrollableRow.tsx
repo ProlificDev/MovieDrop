@@ -9,12 +9,14 @@ interface ScrollableRowProps {
   title: string;
   movies: Movie[];
   link?: string;
+  trailerOnly?: boolean;
 }
 
 export default function ScrollableRow({
   title,
   movies,
   link,
+  trailerOnly = false,
 }: ScrollableRowProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -88,7 +90,7 @@ export default function ScrollableRow({
           className="flex gap-5 overflow-x-auto scrollbar-hide px-6 lg:px-0 scroll-smooth py-2"
         >
           {movies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} variant="scroll" />
+            <MovieCard key={movie.id} movie={movie} variant="scroll" trailerOnly={trailerOnly} />
           ))}
         </div>
 

@@ -126,6 +126,33 @@ class TMDBClient:
         wait=wait_exponential(multiplier=1, min=2, max=10),
         reraise=True
     )
+    async def get_upcoming_movies_filtered(self, page: int = 1) -> Dict[str, Any]:
+        """
+        Fetches movies with a future release date (today onwards), sorted by
+        release date ascending — these are genuine upcoming/unreleased films.
+        """
+        from datetime import date
+        today = date.today().isoformat()
+        url = f"{self.base_url}/discover/movie"
+        params = {
+            "api_key": self.api_key,
+            "language": "en-US",
+            "page": page,
+            "release_date.gte": today,
+            "sort_by": "release_date.asc",
+            "with_release_type": "2|3",   # theatrical releases only
+            "region": "US",
+        }
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, headers=self.headers, params=params)
+            response.raise_for_status()
+            return response.json()
+
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        reraise=True
+    )
     async def get_watch_providers(self, movie_id: int, region: str = "US") -> Dict[str, Any]:
         """
         Fetches streaming/rental/purchase availability for a movie via TMDB's

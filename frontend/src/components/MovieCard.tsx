@@ -9,11 +9,13 @@ import { Heart, Play, Calendar, Star, Clock } from 'lucide-react';
 interface MovieCardProps {
   movie: Movie;
   variant?: 'grid' | 'featured' | 'scroll';
+  trailerOnly?: boolean;
 }
 
 export default function MovieCard({
   movie,
   variant = 'grid',
+  trailerOnly = false,
 }: MovieCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const isScroll = variant === 'scroll';
@@ -75,15 +77,24 @@ export default function MovieCard({
 
             {/* Glowing Call to Actions */}
             <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center w-full justify-center">
-              <Link href={`/movies/${movie.id}?play=true`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full sm:w-auto">
-                <button className="btn-neon-pink flex items-center justify-center gap-2.5 w-full cursor-pointer">
-                  <Play size={20} fill="currentColor" />
-                  Stream Movie Now 🍿
-                </button>
-              </Link>
+              {movie.category === 'upcoming' ? (
+                <Link href={`/movies/${movie.id}?play=true`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full sm:w-auto">
+                  <button className="btn-neon-pink flex items-center justify-center gap-2.5 w-full cursor-pointer">
+                    <Play size={20} fill="currentColor" />
+                    Watch Trailer 🎬
+                  </button>
+                </Link>
+              ) : (
+                <Link href={`/movies/${movie.id}?play=true`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full sm:w-auto">
+                  <button className="btn-neon-pink flex items-center justify-center gap-2.5 w-full cursor-pointer">
+                    <Play size={20} fill="currentColor" />
+                    Watch Trailer 🍿
+                  </button>
+                </Link>
+              )}
               <Link href={`/movies/${movie.id}`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full sm:w-auto">
                 <button className="btn-neon-outline flex items-center justify-center gap-2.5 w-full cursor-pointer">
-                  View Story & Details
+                  View Details
                 </button>
               </Link>
             </div>
@@ -116,13 +127,13 @@ export default function MovieCard({
   }
 
   return (
-    <Link href={`/movies/${movie.id}`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={isScroll ? 'flex-shrink-0' : 'w-full'}>
+    <Link href={`/movies/${movie.id}${trailerOnly ? '?play=true' : ''}`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={isScroll ? 'flex-shrink-0' : 'w-full'}>
       <div
         className={`relative group cursor-pointer transition-all duration-300 hover:scale-[1.03] ${isScroll ? 'w-48' : 'w-full'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Poster Image Frame in Translucent Glass Box */}
+        {/* Poster */}
         <div className="relative aspect-[2/3] w-full bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden group-hover:border-neon-pink/40 group-hover:shadow-[0_8px_30px_rgba(255,0,110,0.15)] transition-all duration-300">
           <Image
             src={movie.posterPath}
@@ -132,7 +143,7 @@ export default function MovieCard({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
 
-          {/* Glowing Dark Glass Overlay on Hover */}
+          {/* Hover overlay */}
           <div className={`absolute inset-0 bg-[#080616]/92 backdrop-blur-sm flex flex-col items-center justify-center p-4 space-y-4 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
             <div className="text-center">
               <span className="inline-flex items-center gap-1 bg-neon-yellow/15 text-neon-yellow font-extrabold text-sm px-2.5 py-1 rounded-lg border border-neon-yellow/20 mb-3 shadow-md">
@@ -142,32 +153,42 @@ export default function MovieCard({
                 {movie.overview}
               </p>
             </div>
-            
             <div className="w-full">
-              <span className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-neon-magenta hover:shadow-[0_0_15px_rgba(255,0,110,0.4)] text-white px-4 py-2.5 rounded-xl font-bold text-xs transition-smooth w-full justify-center">
-                <Play size={12} fill="currentColor" />
-                STREAM NOW 🍿
-              </span>
+              {trailerOnly ? (
+                <span className="flex items-center gap-2 bg-gradient-to-r from-neon-teal to-cyan-500 hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] text-white px-4 py-2.5 rounded-xl font-bold text-xs transition-smooth w-full justify-center">
+                  <Play size={12} fill="currentColor" />
+                  WATCH TRAILER 🎬
+                </span>
+              ) : (
+                <span className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-neon-magenta hover:shadow-[0_0_15px_rgba(255,0,110,0.4)] text-white px-4 py-2.5 rounded-xl font-bold text-xs transition-smooth w-full justify-center">
+                  <Play size={12} fill="currentColor" />
+                  STREAM NOW 🍿
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Release Year Badge */}
+          {/* Year badge */}
           <div className="absolute top-3 right-3 bg-gradient-to-r from-neon-pink to-neon-magenta text-white text-[10px] font-black tracking-wider px-2.5 py-1 rounded-full shadow-lg border border-white/[0.08] backdrop-blur-md">
             {new Date(movie.releaseDate).getFullYear()}
           </div>
+
+          {/* Trailer-only badge */}
+          {trailerOnly && (
+            <div className="absolute top-3 left-3 bg-neon-teal/20 border border-neon-teal/40 text-neon-teal text-[9px] font-black tracking-wider px-2 py-1 rounded-full backdrop-blur-md">
+              COMING SOON
+            </div>
+          )}
         </div>
 
-        {/* Title and Neon Tags */}
+        {/* Title */}
         <div className="mt-3.5 px-1.5">
           <h3 className="text-white font-bold text-sm line-clamp-1 group-hover:text-neon-pink transition-colors duration-300">
             {movie.title}
           </h3>
           <div className="flex flex-wrap gap-1 mt-1.5">
             {movie.genres.slice(0, 2).map((genre) => (
-              <span
-                key={genre}
-                className="bg-white/[0.04] text-gray-400 text-[10px] px-2 py-0.5 rounded-full border border-white/[0.04]"
-              >
+              <span key={genre} className="bg-white/[0.04] text-gray-400 text-[10px] px-2 py-0.5 rounded-full border border-white/[0.04]">
                 {genre}
               </span>
             ))}
