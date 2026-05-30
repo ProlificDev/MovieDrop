@@ -48,11 +48,16 @@ export default function MovieDetailPage({
   // Touch/Mobile detection
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [showControlsOnMobile, setShowControlsOnMobile] = useState(true);
+  const [currentStreamUrl, setCurrentStreamUrl] = useState(`https://vidsrc.me/embed/movie?tmdb=${movieId}`);
+  const [isUsingTrailerFallback, setIsUsingTrailerFallback] = useState(false);
 
   const playerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    setCurrentStreamUrl(`https://vidsrc.me/embed/movie?tmdb=${movieId}`);
+    setIsUsingTrailerFallback(false);
+
     async function loadMovieData() {
       try {
         const liveMovie = await getLiveMovieById(movieId);
@@ -161,9 +166,9 @@ export default function MovieDetailPage({
     notFound();
   }
 
-  const streamUrl = movie?.trailerUrl
-    ? movie.trailerUrl
-    : `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
+  const streamUrl = currentStreamUrl;
+  const fullMovieUrl = `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
+  const trailerUrl = movie?.trailerUrl;
 
   return (
     <div className={`bg-[#06040d] min-h-screen text-[#f1ecfa] relative transition-all duration-700 ${theaterDimmed ? 'bg-[#000000]/98' : ''}`}>
@@ -339,13 +344,20 @@ export default function MovieDetailPage({
                     <iframe
                       key={streamUrl}
                       src={streamUrl}
-                      title={`${movie.title} - Full Movie Stream`}
+                      title={`${movie.title} - ${isUsingTrailerFallback ? 'Trailer Preview' : 'Full Movie Stream'}`}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                       allowFullScreen
                       sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation-by-user-activation"
                       className="w-full h-full absolute inset-0 z-0 border-0"
                       loading="lazy"
                       data-test="video-iframe"
+                      onError={() => {
+                        if (!isUsingTrailerFallback && trailerUrl) {
+                          setCurrentStreamUrl(trailerUrl);
+                          setIsUsingTrailerFallback(true);
+                          console.warn('Falling back to trailer embed because full movie stream failed to load.');
+                        }
+                      }}
                     />
                     {/* Mobile fallback message if iframe fails to load */}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none text-center p-4 text-xs sm:text-sm md:text-base">
