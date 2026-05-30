@@ -49,14 +49,14 @@ export default function MovieDetailPage({
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [showControlsOnMobile, setShowControlsOnMobile] = useState(true);
   
-  // Free embed provider sources (rotating fallbacks)
+  // Free embed provider sources - ordered by reliability (highest to lowest)
   const freeProviders = [
-    { name: 'VidPlay', url: (id: number) => `https://vidplay.site/embed/movie/${id}` },
-    { name: 'Embed.su', url: (id: number) => `https://embed.su/embed/movie/${id}` },
+    { name: 'VidSrc Pro', url: (id: number) => `https://vidsrc.pro/embed/movie/${id}` },
     { name: 'VidSrc.me', url: (id: number) => `https://vidsrc.me/embed/movie?tmdb=${id}` },
+    { name: 'Embed.su', url: (id: number) => `https://embed.su/embed/movie/${id}` },
     { name: 'VidSrc.xyz', url: (id: number) => `https://vidsrc.xyz/embed/movie/${id}` },
     { name: '2Embed', url: (id: number) => `https://www.2embed.org/embed/${id}` },
-    { name: 'Streamsb', url: (id: number) => `https://sb.vidsrc.stream/embed/${id}` },
+    { name: 'SuperEmbed', url: (id: number) => `https://multiembed.mov/?video_id=${id}&tmdb=1` },
   ];
   
   const [providerIndex, setProviderIndex] = useState(0);
@@ -116,48 +116,6 @@ export default function MovieDetailPage({
     setIsTouchDevice(hasTouchSupport());
   }, []);
 
-  // Simulate video playback timer
-  useEffect(() => {
-    if (isPlayingVideo && isPlaying) {
-      timerRef.current = setInterval(() => {
-        setCurrentTime((prevTime) => {
-          if (prevTime >= duration) {
-            setIsPlayingVideo(false);
-            return 0;
-          }
-          return prevTime + 1;
-        });
-        // Jitter live bitrate for realistic monitoring stats
-        setLiveBitrate((prev) => {
-          const delta = (Math.random() - 0.5) * 1.5;
-          const next = prev + delta;
-          return Number(Math.max(12.5, Math.min(19.2, next)).toFixed(1));
-        });
-      }, 1000);
-
-      // Auto-switch provider if content doesn't load after 8 seconds
-      providerTimeoutRef.current = setTimeout(() => {
-        const nextProviderIndex = providerIndex + 1;
-        if (nextProviderIndex < freeProviders.length && !isUsingTrailerFallback) {
-          console.warn(`Provider timeout: ${currentProviderName} failed to load. Trying ${freeProviders[nextProviderIndex].name}...`);
-          handleSwitchProvider(nextProviderIndex);
-        } else if (!isUsingTrailerFallback && trailerUrl) {
-          setCurrentStreamUrl(trailerUrl);
-          setIsUsingTrailerFallback(true);
-          console.warn('All providers exhausted. Falling back to trailer embed.');
-        }
-      }, 8000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (providerTimeoutRef.current) clearTimeout(providerTimeoutRef.current);
-    }
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (providerTimeoutRef.current) clearTimeout(providerTimeoutRef.current);
-    };
-  }, [isPlayingVideo, isPlaying, duration, providerIndex, currentProviderName, isUsingTrailerFallback, trailerUrl, freeProviders]);
-
   // Auto-scroll to player on mobile when playing
   useEffect(() => {
     if (isPlayingVideo && isTouchDevice) {
@@ -200,8 +158,49 @@ export default function MovieDetailPage({
   }
 
   const streamUrl = currentStreamUrl;
-  const fullMovieUrl = `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
   const trailerUrl = movie?.trailerUrl;
+
+  // Simulate video playback timer
+  useEffect(() => {
+    if (isPlayingVideo && isPlaying) {
+      timerRef.current = setInterval(() => {
+        setCurrentTime((prevTime) => {
+          if (prevTime >= duration) {
+            setIsPlayingVideo(false);
+            return 0;
+          }
+          return prevTime + 1;
+        });
+        // Jitter live bitrate for realistic monitoring stats
+        setLiveBitrate((prev) => {
+          const delta = (Math.random() - 0.5) * 1.5;
+          const next = prev + delta;
+          return Number(Math.max(12.5, Math.min(19.2, next)).toFixed(1));
+        });
+      }, 1000);
+
+      // Auto-switch provider if content doesn't load after 3 seconds
+      providerTimeoutRef.current = setTimeout(() => {
+        const nextProviderIndex = providerIndex + 1;
+        if (nextProviderIndex < freeProviders.length && !isUsingTrailerFallback) {
+          console.warn(`Provider timeout: ${currentProviderName} failed to load. Trying ${freeProviders[nextProviderIndex].name}...`);
+          handleSwitchProvider(nextProviderIndex);
+        } else if (!isUsingTrailerFallback && trailerUrl) {
+          setCurrentStreamUrl(trailerUrl);
+          setIsUsingTrailerFallback(true);
+          console.warn('All providers exhausted. Falling back to trailer embed.');
+        }
+      }, 3000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (providerTimeoutRef.current) clearTimeout(providerTimeoutRef.current);
+    }
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (providerTimeoutRef.current) clearTimeout(providerTimeoutRef.current);
+    };
+  }, [isPlayingVideo, isPlaying, duration, providerIndex, currentProviderName, isUsingTrailerFallback, trailerUrl, freeProviders]);
 
   const handleSwitchProvider = (nextIndex: number) => {
     if (nextIndex < freeProviders.length) {
@@ -404,29 +403,32 @@ export default function MovieDetailPage({
                       loading="lazy"
                       data-test="video-iframe"
                       onLoad={() => {
-                        console.log(`✓ Provider loaded: ${currentProviderName}`);
-                        // Clear timeout if iframe loads successfully
-                        if (providerTimeoutRef.current) {
-                          clearTimeout(providerTimeoutRef.current);
-                        }
+                        // Note: iframe onLoad fires even for 'unavailable' pages.
+                        // Do NOT clear the auto-switch timeout here - let it fire to try next provider.
                       }}
                       onError={() => {
-                        console.error(`✗ Provider error: ${currentProviderName}`);
+                        console.error(`❌ Provider failed: ${currentProviderName}`);
                         setStreamHasError(true);
                         const nextProviderIndex = providerIndex + 1;
                         if (nextProviderIndex < freeProviders.length && !isUsingTrailerFallback) {
-                          console.warn(`Trying next provider: ${freeProviders[nextProviderIndex].name}...`);
+                          console.warn(`🔄 Switching to: ${freeProviders[nextProviderIndex].name}...`);
                           handleSwitchProvider(nextProviderIndex);
                         } else if (!isUsingTrailerFallback && trailerUrl) {
                           setCurrentStreamUrl(trailerUrl);
                           setIsUsingTrailerFallback(true);
-                          console.warn('All providers exhausted. Falling back to trailer embed.');
+                          console.warn('❌ All providers exhausted. Falling back to trailer embed.');
                         }
                       }}
                     />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none text-center p-4 text-xs sm:text-sm md:text-base">
-                      <div className="hidden sm:block text-gray-400">
-                        <p>Loading stream...</p>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 pointer-events-none text-center p-4 z-10">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-8 h-8 border-2 border-neon-pink border-t-transparent rounded-full animate-spin" />
+                        <p className="text-white text-xs font-bold">
+                          {isUsingTrailerFallback ? "Playing trailer preview..." : `Trying source ${providerIndex + 1} of ${freeProviders.length}...`}
+                        </p>
+                        <p className="text-gray-400 text-[10px]">
+                          {isUsingTrailerFallback ? "Trailer" : freeProviders[providerIndex]?.name}
+                        </p>
                       </div>
                     </div>
                   </>
