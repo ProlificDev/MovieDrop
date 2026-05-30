@@ -161,7 +161,9 @@ export default function MovieDetailPage({
     notFound();
   }
 
-  const streamUrl = `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
+  const streamUrl = movie?.trailerUrl
+    ? movie.trailerUrl
+    : `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
 
   return (
     <div className={`bg-[#06040d] min-h-screen text-[#f1ecfa] relative transition-all duration-700 ${theaterDimmed ? 'bg-[#000000]/98' : ''}`}>
