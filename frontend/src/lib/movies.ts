@@ -48,10 +48,11 @@ export function mapDbMovieToFrontendMovie(dbMovie: any): Movie {
     overview: dbMovie.overview || '',
     rating: dbMovie.vote_average ? Number(dbMovie.vote_average) : 0,
     genres: genres.length > 0 ? genres : ['Drama'],
-    runtime: 120,
+    runtime: dbMovie.runtime || 120,
     cast,
     category: dbMovie.category || 'upcoming',
     trailerUrl,
+    watchProviders: dbMovie.watch_providers || undefined,
   };
 }
 

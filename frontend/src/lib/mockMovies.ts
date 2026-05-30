@@ -16,6 +16,12 @@ export interface Movie {
   }>;
   category: 'upcoming' | 'now-playing' | 'popular' | 'top-rated';
   trailerUrl?: string;
+  watchProviders?: {
+    link?: string;
+    flatrate?: Array<{ provider_id: number; provider_name: string; logo_path: string }>;
+    rent?: Array<{ provider_id: number; provider_name: string; logo_path: string }>;
+    buy?: Array<{ provider_id: number; provider_name: string; logo_path: string }>;
+  };
 }
 
 export const mockMovies: Movie[] = [

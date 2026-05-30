@@ -134,6 +134,12 @@ class SyncService:
                     trailer_url = self.tmdb.extract_youtube_trailer(details)
                     top_cast = self.tmdb.extract_top_cast(details, limit=5)
 
+                    # Fetch watch providers (streaming availability)
+                    try:
+                        watch_providers = await self.tmdb.get_watch_providers(movie_id)
+                    except Exception:
+                        watch_providers = {}
+
                     release_date = details.get("release_date") or None
                     payload = {
                         "id": movie_id,
@@ -148,6 +154,8 @@ class SyncService:
                         "cast": top_cast,
                         "popularity": float(details.get("popularity", 0.0)),
                         "category": category_key,
+                        "watch_providers": watch_providers,
+                        "runtime": details.get("runtime") or 0,
                     }
 
                     self.supabase.table("movies").upsert(payload).execute()

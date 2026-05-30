@@ -121,6 +121,25 @@ class TMDBClient:
         
         return None
 
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        reraise=True
+    )
+    async def get_watch_providers(self, movie_id: int, region: str = "US") -> Dict[str, Any]:
+        """
+        Fetches streaming/rental/purchase availability for a movie via TMDB's
+        Watch Providers endpoint. Returns the region-specific provider data.
+        """
+        url = f"{self.base_url}/movie/{movie_id}/watch/providers"
+        params = {"api_key": self.api_key}
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, headers=self.headers, params=params)
+            response.raise_for_status()
+            data = response.json()
+            # Return the region slice (e.g. "US") or empty dict if not available
+            return data.get("results", {}).get(region, {})
+
     def extract_top_cast(self, details_payload: Dict[str, Any], limit: int = 5) -> List[Dict[str, Any]]:
         """
         Extracts up to 'limit' billed actors from credits, 
