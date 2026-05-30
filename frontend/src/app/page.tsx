@@ -65,28 +65,3 @@ export default function Home() {
     </>
   );
 }
-
-  return (
-    <>
-      {featuredMovie && <MovieCard movie={featuredMovie} variant="featured" />}
-
-      <div className="relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
-
-          <ScrollableRow
-            title="🎬 Now Playing"
-            movies={nowPlayingMovies}
-            link="/movies/now-playing"
-          />
-
-          <ScrollableRow
-            title="📅 Coming Soon"
-            movies={upcomingMovies}
-            link="/movies/upcoming"
-            trailerOnly
-          />
-        </div>
-      </div>
-    </>
-  );
-}
