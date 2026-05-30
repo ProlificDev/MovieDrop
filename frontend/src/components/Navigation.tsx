@@ -4,11 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
+import PlanBadge from '@/components/PlanBadge';
 
 const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Now Playing', href: '/movies/now-playing' },
   { name: 'Upcoming', href: '/movies/upcoming' },
+  { name: 'Pricing', href: '/pricing' },
 ];
 
 const NAV_HEIGHT = 64; // px — single source of truth
@@ -126,7 +128,10 @@ export default function Navigation() {
             })}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <Link href="/pricing" className="hidden md:block">
+              <PlanBadge />
+            </Link>
             {/* Hamburger — mobile only */}
           <button
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
@@ -226,12 +231,13 @@ export default function Navigation() {
 
         {/* Bottom accent */}
         <div
-          className="px-5 py-5"
+          className="px-5 py-5 flex items-center justify-between"
           style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
         >
           <p className="text-xs text-gray-600 font-medium">
             © 2026 MoviePulse
           </p>
+          <PlanBadge />
         </div>
       </aside>
     </>

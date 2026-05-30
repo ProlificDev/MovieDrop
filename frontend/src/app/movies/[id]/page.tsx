@@ -7,6 +7,7 @@ import {
   Clock, Calendar, Star, Play, X, ExternalLink, Tv, ShoppingCart, MonitorPlay
 } from 'lucide-react';
 import ScrollableRow from '@/components/ScrollableRow';
+import NotificationButton from '@/components/NotificationButton';
 import { Movie } from '@/lib/mockMovies';
 import { getLiveMovieById, getLiveRelatedMovies } from '@/lib/movies';
 import { notFound } from 'next/navigation';
@@ -125,6 +126,8 @@ export default function MovieDetailPage({ params }: MovieDetailPageProps) {
 
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-stretch sm:items-center">
+                  <NotificationButton movieId={movie!.id} movieTitle={movie!.title} />
+
                   {trailerUrl ? (
                     <button
                       onClick={() => {

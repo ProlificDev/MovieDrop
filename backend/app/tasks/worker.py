@@ -40,7 +40,12 @@ celery_app.conf.update(
     beat_schedule={
         "sync-upcoming-movies-every-6-hours": {
             "task": "app.tasks.scheduler.sync_upcoming_movies",
-            "schedule": 6 * 60 * 60,  # Every 6 hours
+            "schedule": 6 * 60 * 60,
+            "options": {"queue": "default"}
+        },
+        "send-notifications-daily": {
+            "task": "app.tasks.scheduler.send_notifications",
+            "schedule": 24 * 60 * 60,  # Every 24 hours at startup offset
             "options": {"queue": "default"}
         },
     }

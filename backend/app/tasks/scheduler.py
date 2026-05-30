@@ -1,63 +1,100 @@
 import asyncio
 import logging
-from celery.schedules import crontab
+from datetime import datetime, timedelta, timezone
 from app.tasks.worker import celery_app
 from app.services.sync import SyncService
+from app.services.subscriptions import SubscriptionService
+from app.services.notifications import NotificationService
 
-logger = logging.getLogger("cinepulse.scheduler")
+logger = logging.getLogger("moviepulse.scheduler")
 
 
-def run_async_task(coro):
-    """
-    Helper to run async functions in Celery tasks.
-    Creates a new event loop if needed.
-    """
+def run_async(coro):
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-    
     return loop.run_until_complete(coro)
 
 
 @celery_app.task(bind=True, name="app.tasks.scheduler.sync_upcoming_movies")
 def sync_upcoming_movies(self, max_pages: int = 3, skip_recent: bool = True):
-    """
-    Background worker task: Full multi-category sync pipeline.
-    Fetches upcoming and now-playing movies from TMDB and syncs to Supabase.
-
-    Since SyncService methods are asynchronous, we wrap execution inside a clean 
-    asyncio event loop container.
-
-    Args:
-        max_pages (int): How many TMDB pages to fetch per category (20 movies/page).
-        skip_recent (bool): If True, skip movies already synced in the last 24h.
-
-    Returns:
-        dict: Sync result with status, counts, and error details.
-    """
     logger.info(f"[Task {self.request.id}] Starting sync_upcoming_movies task...")
-    
     try:
         sync_service = SyncService()
-        result = run_async_task(
-            sync_service.sync_pipeline(max_pages=max_pages, skip_recent=skip_recent)
-        )
-        
-        logger.info(
-            f"[Task {self.request.id}] Sync completed. "
-            f"Status: {result.get('status')}, "
-            f"Upserted: {result.get('upserted')}, "
-            f"Skipped: {result.get('skipped')}, "
-            f"Errors: {len(result.get('errors', []))}"
-        )
+        result = run_async(sync_service.sync_pipeline(max_pages=max_pages, skip_recent=skip_recent))
+        logger.info(f"[Task {self.request.id}] Sync completed: {result.get('status')}")
         return result
-        
     except Exception as e:
-        logger.error(f"[Task {self.request.id}] Sync task failed: {str(e)}", exc_info=True)
-        return {
-            "status": "failed",
-            "error": str(e),
-            "task_id": self.request.id
-        }
+        logger.error(f"[Task {self.request.id}] Sync task failed: {e}", exc_info=True)
+        return {"status": "failed", "error": str(e)}
+
+
+@celery_app.task(bind=True, name="app.tasks.scheduler.send_notifications")
+def send_notifications(self):
+    """
+    Daily task: for each notify_days_before offset, find subscriptions
+    whose movie releases on that target date and fire email + push.
+    """
+    logger.info(f"[Task {self.request.id}] Starting send_notifications task...")
+    return run_async(_send_notifications_async())
+
+
+async def _send_notifications_async():
+    svc = SubscriptionService()
+    notif = NotificationService()
+    today = datetime.now(timezone.utc).date()
+
+    # Check offsets 0–30 days ahead
+    all_offsets = list(range(0, 31))
+    sent = failed = 0
+
+    for days_before in all_offsets:
+        target_date = (today + timedelta(days=days_before)).isoformat()
+        subscriptions = await svc.get_due_subscriptions(target_date)
+
+        for sub in subscriptions:
+            # Only fire if this days_before is in the subscriber's chosen offsets
+            if days_before not in sub.get("notify_days_before", []):
+                continue
+
+            movie = sub.get("movies", {})
+            movie_id = sub["movie_id"]
+            anon_id = sub["anonymous_id"]
+
+            # Email
+            if sub.get("email"):
+                try:
+                    await notif.send_email(
+                        to_email=sub["email"],
+                        movie_title=movie.get("title", "Unknown"),
+                        release_date=target_date,
+                        days_before=days_before,
+                        movie_id=movie_id,
+                        poster_path=movie.get("poster_path"),
+                    )
+                    await svc.log_notification(anon_id, movie_id, "email", days_before, "sent")
+                    sent += 1
+                except Exception as e:
+                    await svc.log_notification(anon_id, movie_id, "email", days_before, "failed", str(e))
+                    failed += 1
+
+            # Push
+            if sub.get("push_subscription"):
+                try:
+                    await notif.send_push(
+                        push_subscription=sub["push_subscription"],
+                        movie_title=movie.get("title", "Unknown"),
+                        release_date=target_date,
+                        days_before=days_before,
+                        movie_id=movie_id,
+                    )
+                    await svc.log_notification(anon_id, movie_id, "push", days_before, "sent")
+                    sent += 1
+                except Exception as e:
+                    await svc.log_notification(anon_id, movie_id, "push", days_before, "failed", str(e))
+                    failed += 1
+
+    logger.info(f"Notifications done — sent={sent} failed={failed}")
+    return {"status": "success", "sent": sent, "failed": failed}
