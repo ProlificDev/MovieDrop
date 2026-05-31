@@ -7,6 +7,7 @@ import {
   Clock, Calendar, Play, X, ExternalLink, Tv, ShoppingCart, MonitorPlay
 } from 'lucide-react';
 import ScrollableRow from '@/components/ScrollableRow';
+import NotificationButton from '@/components/NotificationButton';
 import { Movie } from '@/lib/mockMovies';
 import { getLiveMovieById, getLiveRelatedMovies } from '@/lib/movies';
 import { notFound } from 'next/navigation';
@@ -141,6 +142,10 @@ export default function MovieDetailPage({ params }: MovieDetailPageProps) {
                       <span>No trailer available</span>
                     </div>
                   )}
+
+                  <div className="flex-1">
+                    <NotificationButton movieId={movie!.id} movieTitle={movie!.title} />
+                  </div>
 
                   {providers?.link && (
                     <a
