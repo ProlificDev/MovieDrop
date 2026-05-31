@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Movie } from '@/lib/mockMovies';
 import { useState } from 'react';
-import { Heart, Play, Calendar, Star, Clock } from 'lucide-react';
+import { Heart, Play, Calendar, Clock } from 'lucide-react';
 
 interface MovieCardProps {
   movie: Movie;
@@ -64,10 +64,6 @@ export default function MovieCard({
                   year: 'numeric',
                   month: 'long',
                 })}
-              </span>
-              <span className="flex items-center gap-2 bg-neon-yellow/10 border border-neon-yellow/20 backdrop-blur-md text-neon-yellow px-3 py-1.5 md:px-4.5 md:py-2 rounded-xl font-bold text-xs md:text-sm shadow-md">
-                <Star size={14} fill="currentColor" />
-                {movie.rating.toFixed(1)}/10
               </span>
               <span className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] backdrop-blur-md text-white px-3 py-1.5 md:px-4.5 md:py-2 rounded-xl font-bold text-xs md:text-sm shadow-md">
                 <Clock size={14} className="text-neon-teal" />
