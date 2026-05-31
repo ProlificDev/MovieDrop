@@ -1,7 +1,9 @@
 import asyncio
 import logging
 from datetime import datetime, timedelta, timezone
-from app.tasks.worker import celery_app
+from app.tasks.celery_app import celery_app
+
+
 from app.services.sync import SyncService
 from app.services.subscriptions import SubscriptionService
 from app.services.notifications import NotificationService
@@ -80,21 +82,10 @@ async def _send_notifications_async():
                     await svc.log_notification(anon_id, movie_id, "email", days_before, "failed", str(e))
                     failed += 1
 
-            # Push
-            if sub.get("push_subscription"):
-                try:
-                    await notif.send_push(
-                        push_subscription=sub["push_subscription"],
-                        movie_title=movie.get("title", "Unknown"),
-                        release_date=target_date,
-                        days_before=days_before,
-                        movie_id=movie_id,
-                    )
-                    await svc.log_notification(anon_id, movie_id, "push", days_before, "sent")
-                    sent += 1
-                except Exception as e:
-                    await svc.log_notification(anon_id, movie_id, "push", days_before, "failed", str(e))
-                    failed += 1
+            # Push notifications removed per request.
+            # (Only email is sent.)
+
+
 
     logger.info(f"Notifications done — sent={sent} failed={failed}")
     return {"status": "success", "sent": sent, "failed": failed}

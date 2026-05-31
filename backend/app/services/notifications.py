@@ -38,36 +38,9 @@ class NotificationService:
             logger.error(f"Email failed for {to_email}: {e}")
             raise
 
-    async def send_push(
-        self,
-        push_subscription: dict,
-        movie_title: str,
-        release_date: str,
-        days_before: int,
-        movie_id: int,
-    ) -> bool:
-        from app.main import settings
-        payload = json.dumps({
-            "title": self._push_title(movie_title, days_before),
-            "body": self._push_body(movie_title, release_date, days_before),
-            "icon": "/icon.png",
-            "badge": "/icon.png",
-            "tag": f"movie-{movie_id}",
-            "url": f"/movies/{movie_id}",
-            "requireInteraction": days_before == 0,
-        })
-        try:
-            webpush(
-                subscription_info=push_subscription,
-                data=payload,
-                vapid_private_key=settings.VAPID_PRIVATE_KEY,
-                vapid_claims={"sub": settings.VAPID_CLAIM_EMAIL},
-            )
-            logger.info(f"Push sent for '{movie_title}' ({days_before}d before)")
-            return True
-        except WebPushException as e:
-            logger.error(f"Push failed for movie {movie_id}: {e}")
-            raise
+    # Push notifications removed per request.
+    # (Email notifications remain supported via Resend.)
+
 
     # ── Helpers ──────────────────────────────────────────────────────────
 
