@@ -51,17 +51,6 @@ export default function Footer() {
           <p className="text-xs text-gray-600">
             © {new Date().getFullYear()} MoviePulse. All rights reserved.
           </p>
-          <p className="text-xs text-gray-600">
-            Movie data provided by{' '}
-            <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-300 transition-colors underline">
-              TMDB
-            </a>
-            . Streaming data by{' '}
-            <a href="https://www.justwatch.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-300 transition-colors underline">
-              JustWatch
-            </a>
-            .
-          </p>
         </div>
       </div>
     </footer>
