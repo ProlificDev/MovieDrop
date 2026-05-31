@@ -3,7 +3,6 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import Footer from '@/components/Footer';
 
 export const viewport: Viewport = {
   width: 'device-width',
