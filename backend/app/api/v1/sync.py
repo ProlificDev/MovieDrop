@@ -1,8 +1,14 @@
 import logging
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from celery.result import AsyncResult
-from app.services.sync import SyncService
 from app.tasks.scheduler import sync_upcoming_movies
+
+# NOTE: lazy import SyncService to avoid circular imports during Celery startup.
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.services.sync import SyncService
+
 
 logger = logging.getLogger("cinepulse.api.sync")
 router = APIRouter(prefix="/sync", tags=["Pipeline Sync"])

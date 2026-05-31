@@ -11,11 +11,15 @@ logger = logging.getLogger("moviepulse.api.paystack")
 router = APIRouter(prefix="/paystack", tags=["Paystack"])
 
 
-class CheckoutBody:
+from pydantic import BaseModel
+
+
+class CheckoutBody(BaseModel):
     # minimal payload from frontend
     anonymous_id: str
     plan: str  # 'basic' | 'pro'
     amount: int  # in NGN kobo? we will pass plain NGN amount and convert
+
 
 
 @router.post("/create-checkout", status_code=201)

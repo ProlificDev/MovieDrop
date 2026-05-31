@@ -2,8 +2,19 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Set
 from supabase import create_client, Client
-from app.main import settings
 from app.services.tmdb import TMDBClient
+
+
+# NOTE: Avoid importing app.main at module import time.
+# Celery workers import tasks during startup; importing app.main
+# pulls in API routers which can import SyncService again, creating a
+# circular import and preventing the worker from starting.
+
+
+def _get_settings():
+    from app.main import settings  # lazy import
+    return settings
+
 
 logger = logging.getLogger("cinepulse.sync")
 
