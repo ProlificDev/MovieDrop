@@ -2,6 +2,8 @@ import React from 'react';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
+import Footer from '@/components/Footer';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -39,6 +41,7 @@ export default function RootLayout({
           <div className="relative z-10">
             <Navigation />
             <main className="pt-24 sm:pt-28">{children}</main>
+            <Footer />
           </div>
         </ThemeProvider>
       </body>
