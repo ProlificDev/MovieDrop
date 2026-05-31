@@ -14,6 +14,7 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
+
 import PlanBadge from '@/components/PlanBadge';
 
 type NavLink = {
@@ -100,7 +101,6 @@ export default function Navigation() {
             <div className="hidden md:flex items-center gap-1 rounded-xl bg-white/[0.035] border border-white/[0.06] p-1">
               {navLinks.map(link => {
                 const active = isActive(link.href);
-                const Icon = link.icon;
 
                 return (
                   <Link
@@ -116,7 +116,6 @@ export default function Navigation() {
                         transition={{ type: 'spring', stiffness: 420, damping: 34 }}
                       />
                     )}
-                    <Icon className="relative h-3.5 w-3.5" />
                     <span className="relative whitespace-nowrap">{link.name}</span>
                   </Link>
                 );
@@ -234,7 +233,6 @@ export default function Navigation() {
                         }}
                         aria-current={active ? 'page' : undefined}
                       >
-                        <Icon size={17} />
                         <span>{link.name}</span>
                       </Link>
                     </motion.div>
