@@ -1,6 +1,8 @@
 import CategoryPage from '@/components/CategoryPage';
 import { getLiveMoviesByCategory } from '@/lib/movies';
 
+export const revalidate = 3600;
+
 export const metadata = {
   title: 'Now Playing Movies | MovieDrop',
   description: 'Browse all movies currently playing in theaters.',

@@ -1,6 +1,8 @@
 import CategoryPage from '@/components/CategoryPage';
 import { getLiveMoviesByCategory } from '@/lib/movies';
 
+export const revalidate = 3600;
+
 export const metadata = {
   title: 'Popular Movies | MovieDrop',
   description: 'Browse the most popular movies.',
