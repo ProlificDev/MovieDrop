@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import { ScrollToTop } from '@/components/ScrollToTop';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -39,6 +40,7 @@ export default function RootLayout({
 
           <div className="relative z-10">
             <Navigation />
+            <ScrollToTop />
             <main className="pt-24 sm:pt-28">{children}</main>
             <Footer />
           </div>

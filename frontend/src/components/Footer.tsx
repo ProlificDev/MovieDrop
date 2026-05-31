@@ -6,8 +6,6 @@ const links = {
   Browse: [
     { name: 'Now Playing', href: '/movies/now-playing' },
     { name: 'Coming Soon', href: '/movies/upcoming' },
-    { name: 'Popular', href: '/movies/popular' },
-    { name: 'Top Rated', href: '/movies/top-rated' },
   ],
   Account: [
     { name: 'My Notifications', href: '/notifications' },
