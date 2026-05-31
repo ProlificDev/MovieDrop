@@ -46,15 +46,37 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
   const planConfig = PLANS[plan];
 
   useEffect(() => {
-    checkSubscription(movieId).then(data => {
-      if (data.subscribed && data.subscription) {
-        setSubscribed(true);
-        setEmail(data.subscription.email ?? '');
-        setSelectedDays(data.subscription.notify_days_before ?? [0, 1, 7]);
-        setPushEnabled(!!data.subscription.push_subscription);
+    let cancelled = false;
+
+    async function run() {
+      try {
+        // Avoid infinite spinner when the API is down/hanging.
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Subscription check timed out')), 5000)
+        );
+
+        const data = await Promise.race([checkSubscription(movieId), timeout]);
+
+        if (cancelled) return;
+
+        if (data.subscribed && data.subscription) {
+          setSubscribed(true);
+          setEmail(data.subscription.email ?? '');
+          setSelectedDays(data.subscription.notify_days_before ?? [0, 1, 7]);
+          setPushEnabled(!!data.subscription.push_subscription);
+        }
+      } catch {
+        // Keep UI usable even if backend is unreachable.
+        if (!cancelled) setSubscribed(false);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      setLoading(false);
-    });
+    }
+
+    run();
+    return () => {
+      cancelled = true;
+    };
   }, [movieId]);
 
   function showToast(msg: string) {
