@@ -146,9 +146,6 @@ export default function MovieCard({
           {/* Hover overlay */}
           <div className={`absolute inset-0 bg-[#080616]/92 backdrop-blur-sm flex flex-col items-center justify-center p-4 space-y-4 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
             <div className="text-center">
-              <span className="inline-flex items-center gap-1 bg-neon-yellow/15 text-neon-yellow font-extrabold text-sm px-2.5 py-1 rounded-lg border border-neon-yellow/20 mb-3 shadow-md">
-                ★ {movie.rating.toFixed(1)}
-              </span>
               <p className="text-gray-300 text-xs line-clamp-3 leading-relaxed">
                 {movie.overview}
               </p>
