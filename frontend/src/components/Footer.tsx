@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { Mail, Github, Twitter } from 'lucide-react';
 
 const links = {
   Browse: [
@@ -29,41 +28,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
 
         {/* Top row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
-
-          {/* Brand */}
-          <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <img src="/logo.png" alt="MoviePulse" className="w-8 h-8 rounded-lg" />
-              <span
-                className="text-lg font-extrabold bg-clip-text text-transparent"
-                style={{ backgroundImage: 'linear-gradient(90deg,#FF006E,#D946EF,#06B6D4)' }}
-              >
-                MoviePulse
-              </span>
-            </Link>
-            <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
-              Your cinema companion. Browse now-playing movies, track upcoming releases, and get notified before they hit theatres — no account needed.
-            </p>
-
-            {/* Social */}
-            <div className="flex gap-3 mt-6">
-              {[
-                { icon: <Twitter size={16} />, href: '#', label: 'Twitter' },
-                { icon: <Github size={16} />, href: '#', label: 'GitHub' },
-                { icon: <Mail size={16} />, href: 'mailto:hello@moviepulse.app', label: 'Email' },
-              ].map(s => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  aria-label={s.label}
-                  className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-gray-400 hover:text-white hover:border-neon-pink/30 hover:bg-neon-pink/[0.08] transition-all"
-                >
-                  {s.icon}
-                </a>
-              ))}
-            </div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-12">
 
           {/* Link columns */}
           {Object.entries(links).map(([section, items]) => (
