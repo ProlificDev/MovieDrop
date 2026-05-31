@@ -146,9 +146,7 @@ export default function MovieCard({
           {/* Hover overlay */}
           <div className={`absolute inset-0 bg-[#080616]/92 backdrop-blur-sm flex flex-col items-center justify-center p-4 space-y-4 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
             <div className="text-center">
-              <p className="text-gray-300 text-xs line-clamp-3 leading-relaxed">
-                {movie.overview}
-              </p>
+              <p className="text-gray-300 text-xs line-clamp-3 leading-relaxed">{movie.overview}</p>
             </div>
             <div className="w-full">
               {trailerOnly ? (

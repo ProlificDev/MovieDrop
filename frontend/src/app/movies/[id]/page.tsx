@@ -4,10 +4,9 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
-  Clock, Calendar, Star, Play, X, ExternalLink, Tv, ShoppingCart, MonitorPlay
+  Clock, Calendar, Play, X, ExternalLink, Tv, ShoppingCart, MonitorPlay
 } from 'lucide-react';
 import ScrollableRow from '@/components/ScrollableRow';
-import NotificationButton from '@/components/NotificationButton';
 import { Movie } from '@/lib/mockMovies';
 import { getLiveMovieById, getLiveRelatedMovies } from '@/lib/movies';
 import { notFound } from 'next/navigation';
@@ -111,10 +110,7 @@ export default function MovieDetailPage({ params }: MovieDetailPageProps) {
                       <span>{movie!.runtime} min</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 bg-neon-yellow/10 border border-neon-yellow/20 rounded-xl px-4 py-2 text-sm font-extrabold text-neon-yellow">
-                    <Star size={16} fill="currentColor" />
-                    <span>{movie!.rating.toFixed(1)}/10</span>
-                  </div>
+
                 </div>
 
                 {/* Genres */}
@@ -126,8 +122,6 @@ export default function MovieDetailPage({ params }: MovieDetailPageProps) {
 
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-stretch sm:items-center">
-                  <NotificationButton movieId={movie!.id} movieTitle={movie!.title} />
-
                   {trailerUrl ? (
                     <button
                       onClick={() => {
