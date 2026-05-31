@@ -76,7 +76,7 @@ export async function getLiveMoviesByCategory(category: string): Promise<Movie[]
       query = query.order('popularity', { ascending: false });
     }
 
-    const { data, error } = await query.limit(20);
+    const { data, error } = await query.limit(40);
     
     if (error) {
       console.error(`Error fetching movies for category ${category}:`, error);
