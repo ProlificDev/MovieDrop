@@ -76,7 +76,7 @@ export default function Navigation() {
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={isMenuOpen}
               onClick={() => setIsMenuOpen(v => !v)}
-              className="flex items-center justify-center w-10 h-10 rounded-xl text-white transition-colors duration-200 cursor-pointer"
+              className="flex items-center justify-center w-8 h-8 rounded-lg text-white transition-colors duration-200 cursor-pointer"
               style={{ background: isMenuOpen ? 'rgba(255,0,110,0.18)' : 'rgba(255,255,255,0.05)' }}
             >
               {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -164,7 +164,6 @@ export default function Navigation() {
           style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
         >
           <p className="text-xs text-gray-600 font-medium">© 2026 MoviePulse</p>
-          <PlanBadge />
         </div>
       </aside>
     </>
