@@ -122,8 +122,9 @@ export default function Navigation() {
               })}
             </div>
 
+            {/* Removed PlanBadge from navbar */}
             <div className="hidden md:flex items-center pl-1">
-              <PlanBadge />
+              {/* <PlanBadge /> */}
             </div>
 
             <button
