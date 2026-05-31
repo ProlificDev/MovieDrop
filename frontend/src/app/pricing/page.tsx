@@ -1,7 +1,12 @@
 'use client';
 
-import { Check, X, Zap, Star, Sparkles } from 'lucide-react';
+import React from 'react';
+import { Check, X, Zap, Star, Sparkles, Loader2 } from 'lucide-react';
+
 import Link from 'next/link';
+import { getAnonymousId } from '@/lib/subscriptions';
+import { createPaystackCheckout, PlanKey } from '@/lib/paystack';
+
 
 interface Feature {
   text: string;
@@ -87,7 +92,31 @@ function FeatureCell({ value }: { value: boolean | string }) {
 }
 
 export default function PricingPage() {
+  const [loadingPlan, setLoadingPlan] = React.useState<PlanKey | null>(null);
+
+  const planAmounts: Record<PlanKey, number> = {
+    basic: 1500,
+    pro: 4500,
+  };
+
+
+  async function handleUpgrade(plan: PlanKey, amount: number) {
+    setLoadingPlan(plan);
+    try {
+      const anonymousId = getAnonymousId();
+      const url = await createPaystackCheckout({
+        anonymousId,
+        plan,
+        amount,
+      });
+      window.location.href = url;
+    } finally {
+      setLoadingPlan(null);
+    }
+  }
+
   return (
+
     <div className="bg-[#06040d] min-h-screen text-[#f1ecfa]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-32 pb-24">
 
@@ -118,6 +147,7 @@ export default function PricingPage() {
               key={plan.key}
               className={`relative rounded-2xl border bg-gradient-to-b ${plan.gradient} ${plan.border} p-8 flex flex-col ${plan.highlight ? 'ring-1 ring-neon-pink/30 shadow-[0_0_40px_rgba(255,0,110,0.12)]' : ''}`}
             >
+
               {/* Popular badge */}
               {plan.badge && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
@@ -180,18 +210,28 @@ export default function PricingPage() {
               {/* CTA */}
               <div className="relative group">
                 <button
-                  disabled
-                  className="w-full py-3.5 rounded-xl font-extrabold text-sm cursor-not-allowed opacity-80 transition-all"
+                  disabled={plan.price !== 0 && loadingPlan !== null}
+                  onClick={() => {
+                    if (plan.key === 'basic' || plan.key === 'pro') {
+                      handleUpgrade(plan.key as PlanKey, planAmounts[plan.key as PlanKey]);
+                    }
+                  }}
+                  className="w-full py-3.5 rounded-xl font-extrabold text-sm transition-all"
                   style={plan.btnStyle}
                 >
-                  {plan.price === 0 ? 'Current Plan' : 'Coming Soon'}
+                  {plan.price === 0
+                    ? 'Current Plan'
+                    : loadingPlan === plan.key
+                      ? 'Redirecting...'
+                      : 'Upgrade with Paystack'}
                 </button>
                 {plan.price > 0 && (
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <span className="text-xs text-white/60 font-semibold">Payments launching soon</span>
+                    <span className="text-xs text-white/60 font-semibold">Secure checkout</span>
                   </div>
                 )}
               </div>
+
             </div>
           ))}
         </div>

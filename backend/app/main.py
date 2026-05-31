@@ -17,7 +17,13 @@ class Settings(BaseSettings):
     VAPID_PUBLIC_KEY: str = ""
     VAPID_PRIVATE_KEY: str = ""
     VAPID_CLAIM_EMAIL: str = ""
+
+    # Paystack
+    PAYSTACK_SECRET_KEY: str = ""
+    PAYSTACK_WEBHOOK_SECRET: str = ""
+
     BACKEND_CORS_ORIGINS: str = '["http://localhost:3000"]'
+
 
     model_config = SettingsConfigDict(
         env_file=".env",
