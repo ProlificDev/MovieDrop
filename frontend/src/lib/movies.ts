@@ -62,9 +62,11 @@ export async function getLiveMoviesByCategory(category: string): Promise<Movie[]
 
     // Filter by the category column which is populated by the sync pipeline
     if (category === 'upcoming') {
-      query = query.eq('category', 'upcoming').order('release_date', { ascending: true });
+      const today = new Date().toISOString().split('T')[0];
+      query = query.eq('category', 'upcoming').gt('release_date', today).order('release_date', { ascending: true });
     } else if (category === 'now-playing') {
-      query = query.eq('category', 'now-playing').order('release_date', { ascending: false });
+      const today = new Date().toISOString().split('T')[0];
+      query = query.eq('category', 'now-playing').lte('release_date', today).order('release_date', { ascending: false });
     } else if (category === 'popular') {
       query = query.eq('category', 'popular').order('popularity', { ascending: false });
     } else if (category === 'top-rated') {
