@@ -14,7 +14,7 @@ const navLinks = [
   { name: 'Pricing', href: '/pricing' },
 ];
 
-const NAV_HEIGHT = 64;
+const NAV_HEIGHT = 48;
 export { NAV_HEIGHT };
 
 export default function Navigation() {
@@ -41,7 +41,7 @@ export default function Navigation() {
   return (
     <>
       {/* ── Navbar ───────────────────────────────────────────── */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex justify-center w-full px-4 sm:px-6 pt-4 sm:pt-6 pointer-events-none">
+      <div className="fixed top-0 left-0 right-0 z-50 flex justify-center w-full px-4 sm:px-6 pt-3 pointer-events-none">
         <nav
           className="pointer-events-auto rounded-2xl w-full max-w-6xl"
           style={{
@@ -61,10 +61,10 @@ export default function Navigation() {
               <img
                 src="/logo.png"
                 alt="MoviePulse Logo"
-                className="w-8 h-8 rounded-lg transition-transform duration-300 group-hover:scale-110"
+                className="w-6 h-6 rounded-md transition-transform duration-300 group-hover:scale-110"
               />
               <span
-                className="text-lg font-extrabold bg-clip-text text-transparent"
+                className="text-sm font-extrabold bg-clip-text text-transparent"
                 style={{ backgroundImage: 'linear-gradient(90deg,#FF006E,#D946EF,#06B6D4)' }}
               >
                 MoviePulse
@@ -76,10 +76,10 @@ export default function Navigation() {
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={isMenuOpen}
               onClick={() => setIsMenuOpen(v => !v)}
-              className="flex items-center justify-center w-8 h-8 rounded-lg text-white transition-colors duration-200 cursor-pointer"
+              className="flex items-center justify-center w-7 h-7 rounded-md text-white transition-colors duration-200 cursor-pointer"
               style={{ background: isMenuOpen ? 'rgba(255,0,110,0.18)' : 'rgba(255,255,255,0.05)' }}
             >
-              {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              {isMenuOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
           </div>
         </nav>

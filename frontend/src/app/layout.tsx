@@ -41,7 +41,7 @@ export default function RootLayout({
           <div className="relative z-10">
             <Navigation />
             <ScrollToTop />
-            <main className="pt-24 sm:pt-28">{children}</main>
+            <main className="pt-16 sm:pt-20">{children}</main>
             <Footer />
           </div>
         </ThemeProvider>
