@@ -15,7 +15,7 @@ const GENRES = [
 
 const STATS = [
   { value: '40+', label: 'Movies tracked' },
-  { value: 'Daily', label: 'Sync with TMDB' },
+  { value: 'Live', label: 'Data' },
   { value: 'Free', label: 'To browse' },
   { value: '2', label: 'Notification channels' },
 ];
