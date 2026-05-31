@@ -70,6 +70,16 @@ export async function countSubscriptions(): Promise<number> {
   return data.count ?? 0;
 }
 
+export async function getAllSubscriptions(): Promise<any[]> {
+  const anonId = getAnonymousId();
+  const res = await fetch(
+    `${API_BASE}/api/v1/subscriptions/all?anonymous_id=${anonId}`
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.subscriptions ?? [];
+}
+
 // ── Push helpers ──────────────────────────────────────────────────────────
 
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {

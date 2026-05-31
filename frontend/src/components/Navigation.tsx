@@ -10,6 +10,7 @@ const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Now Playing', href: '/movies/now-playing' },
   { name: 'Upcoming', href: '/movies/upcoming' },
+  { name: 'My Notifications', href: '/notifications' },
   { name: 'Pricing', href: '/pricing' },
 ];
 
