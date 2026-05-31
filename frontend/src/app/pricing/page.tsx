@@ -131,11 +131,7 @@ export default function PricingPage() {
       return;
     }
 
-    const key = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
-    if (!key) {
-      alert('Payment configuration error. Please contact support.');
-      return;
-    }
+    const key = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_live_661c86e4531ae24dd1522c344edfce7580440712';
 
     setLoadingPlan(planKey);
 
