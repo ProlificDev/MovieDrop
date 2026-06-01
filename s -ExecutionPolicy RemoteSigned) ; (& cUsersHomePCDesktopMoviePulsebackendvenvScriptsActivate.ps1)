@@ -1,0 +1,11 @@
+warning: in the working copy of 'backend/app/api/v1/sync.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/services/notifications.py', LF will be replaced by CRLF the next time Git touches it
+ backend/app/api/v1/paystack.py         |   6 [32m+[m[31m-[m
+ backend/app/api/v1/sync.py             |   8 [32m+[m[31m-[m
+ backend/app/services/notifications.py  |  33 [32m+[m[31m---[m
+ backend/app/services/sync.py           |  13 [32m+[m[31m-[m
+ backend/app/tasks/scheduler.py         |  23 [32m+[m[31m--[m
+ backend/app/tasks/worker.py            |  32 [32m+[m[31m---[m
+ frontend/src/components/Navigation.tsx | 283 [32m+++++++++++++++++++[m[31m--------------[m
+ frontend/tsconfig.tsbuildinfo          |   2 [32m+[m[31m-[m
+ 8 files changed, 206 insertions(+), 194 deletions(-)
