@@ -25,6 +25,7 @@ SYNC_YEAR = 2025
 class SyncService:
 
     def __init__(self):
+        settings = _get_settings()
         if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY:
             raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.")
 
