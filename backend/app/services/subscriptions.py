@@ -57,10 +57,10 @@ class SubscriptionService:
             .select("*")
             .eq("anonymous_id", str(anonymous_id))
             .eq("movie_id", movie_id)
-            .maybeSingle()
+            .limit(1)
             .execute()
         )
-        return response.data
+        return response.data[0] if response.data else None
 
     async def get_all_subscriptions(self, anonymous_id: UUID) -> list[dict]:
         response = (
