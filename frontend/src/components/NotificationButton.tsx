@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bell, BellOff, Mail, Smartphone, Check, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bell, BellOff, Mail, Check, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import {
   checkSubscription,
   subscribe,
   unsubscribe,
   countSubscriptions,
-  requestPushSubscription,
 } from '@/lib/subscriptions';
-import { getCurrentPlan, canAddNotification, canUsePush, PLANS } from '@/lib/plan';
+import { getCurrentPlan, canAddNotification, PLANS } from '@/lib/plan';
 import UpgradeModal from '@/components/UpgradeModal';
 
 const DAY_OPTIONS = [
@@ -33,8 +32,6 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
 
   const [email, setEmail] = useState('');
   const [selectedDays, setSelectedDays] = useState<number[]>([0, 1, 7]);
-  const [pushEnabled, setPushEnabled] = useState(false);
-  const [pushSub, setPushSub] = useState<PushSubscriptionJSON | null>(null);
 
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState('');
@@ -50,23 +47,17 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
 
     async function run() {
       try {
-        // Avoid infinite spinner when the API is down/hanging.
         const timeout = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Subscription check timed out')), 5000)
+          setTimeout(() => reject(new Error('timeout')), 5000)
         );
-
-        const data = await Promise.race([checkSubscription(movieId), timeout]);
-
+        const data: any = await Promise.race([checkSubscription(movieId), timeout]);
         if (cancelled) return;
-
         if (data.subscribed && data.subscription) {
           setSubscribed(true);
           setEmail(data.subscription.email ?? '');
           setSelectedDays(data.subscription.notify_days_before ?? [0, 1, 7]);
-          setPushEnabled(!!data.subscription.push_subscription);
         }
       } catch {
-        // Keep UI usable even if backend is unreachable.
         if (!cancelled) setSubscribed(false);
       } finally {
         if (!cancelled) setLoading(false);
@@ -74,9 +65,7 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
     }
 
     run();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [movieId]);
 
   function showToast(msg: string) {
@@ -90,30 +79,9 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
     );
   }
 
-  async function handleTogglePush() {
-    if (!canUsePush()) {
-      setUpgradeReason('Push notifications are available on the Pro plan.');
-      setUpgradePlan('pro');
-      setUpgradeOpen(true);
-      return;
-    }
-    if (pushEnabled) {
-      setPushEnabled(false);
-      setPushSub(null);
-      return;
-    }
-    const sub = await requestPushSubscription();
-    if (sub) {
-      setPushEnabled(true);
-      setPushSub(sub);
-    } else {
-      showToast('Push permission denied or not supported.');
-    }
-  }
-
   async function handleSubscribe() {
-    if (!email && !pushEnabled) {
-      showToast('Add an email or enable push notifications first.');
+    if (!email) {
+      showToast('Please enter your email address.');
       return;
     }
     if (selectedDays.length === 0) {
@@ -121,7 +89,6 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
       return;
     }
 
-    // Plan limit check (only for new subscriptions)
     if (!subscribed) {
       const count = await countSubscriptions();
       if (!canAddNotification(count)) {
@@ -135,7 +102,7 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
 
     setSaving(true);
     try {
-      await subscribe(movieId, selectedDays, email || undefined, pushSub);
+      await subscribe(movieId, selectedDays, email);
       setSubscribed(true);
       setExpanded(false);
       showToast(`You'll be notified about "${movieTitle}" 🎬`);
@@ -177,7 +144,6 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
 
   return (
     <>
-      {/* Toast */}
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl bg-[#1a1030] border border-white/[0.1] text-sm text-white font-semibold shadow-xl animate-fade-in">
           {toast}
@@ -192,7 +158,6 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
       />
 
       <div className="w-full max-w-sm">
-        {/* Main toggle button */}
         {subscribed ? (
           <div className="flex gap-2">
             <button
@@ -227,7 +192,6 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
           </button>
         )}
 
-        {/* Expanded panel */}
         {expanded && (
           <div className="mt-3 p-5 rounded-2xl bg-[#0e0a1a] border border-white/[0.08] space-y-5">
 
@@ -235,7 +199,7 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
             <div>
               <label className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
                 <Mail size={12} className="text-neon-pink" />
-                Email (optional)
+                Email
               </label>
               <input
                 type="email"
@@ -253,7 +217,6 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
               </label>
               <div className="flex flex-wrap gap-2">
                 {DAY_OPTIONS.map(opt => {
-                  // Days > 1 require basic+
                   const needsUpgrade = opt.value > 1 && plan === 'free';
                   const active = selectedDays.includes(opt.value);
                   return (
@@ -282,31 +245,6 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
                   );
                 })}
               </div>
-            </div>
-
-            {/* Push toggle */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Smartphone size={14} className={pushEnabled ? 'text-neon-teal' : 'text-gray-500'} />
-                <span className="text-sm text-gray-300 font-semibold">
-                  Push notifications
-                  {!planConfig.pushNotifications && (
-                    <span className="ml-1.5 text-[10px] text-neon-pink font-black">PRO</span>
-                  )}
-                </span>
-              </div>
-              <button
-                onClick={handleTogglePush}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 cursor-pointer ${
-                  pushEnabled ? 'bg-neon-teal' : 'bg-white/[0.1]'
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${
-                    pushEnabled ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
             </div>
 
             {/* Save */}
