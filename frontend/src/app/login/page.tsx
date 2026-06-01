@@ -23,12 +23,12 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
-          <Image src="/logo.png" alt="MoviePulse" width={52} height={52} className="rounded-2xl mb-4" />
+          <Image src="/logo.png" alt="MovieDrop" width={52} height={52} className="rounded-2xl mb-4" />
           <h1
             className="text-2xl font-extrabold bg-clip-text text-transparent"
             style={{ backgroundImage: 'linear-gradient(90deg,#FF006E,#D946EF,#06B6D4)' }}
           >
-            MoviePulse
+            MovieDrop
           </h1>
           <p className="text-gray-500 text-sm mt-2 text-center">
             Sign in to track your movie notifications

@@ -39,7 +39,7 @@ export default function NotificationsPage() {
       getAllSubscriptions().then(data => {
         setSubs(data);
         setLoading(false);
-      });
+      }).catch(() => setLoading(false));
     }
   }, [user]);
 

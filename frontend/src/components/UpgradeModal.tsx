@@ -67,11 +67,10 @@ export default function UpgradeModal({
           )}
           {requiredPlan === 'pro' && (
             <>
-              <PerkRow text="Push notifications (instant, no email needed)" />
-              <PerkRow text="Email + push at the same time" />
               <PerkRow text="Up to 50 movie notifications" />
               <PerkRow text="Weekly 'What's New' digest" />
               <PerkRow text="Exclusive Hidden Gems picks" />
+              <PerkRow text="Priority notification delivery" />
             </>
           )}
         </ul>

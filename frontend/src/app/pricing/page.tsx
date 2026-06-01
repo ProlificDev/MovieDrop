@@ -33,7 +33,6 @@ const features: Feature[] = [
   { text: 'Trailers & where to watch',      free: true,        basic: true,         pro: true },
   { text: 'Full movie details & cast',      free: true,        basic: true,         pro: true },
   { text: 'Email release notifications',    free: '1 movie',   basic: '10 movies',  pro: '50 movies' },
-  { text: 'Push notifications',             free: false,       basic: false,        pro: true },
   { text: 'Custom notify timing',           free: false,       basic: true,         pro: true },
   { text: 'Early release alerts (2 weeks)', free: false,       basic: true,         pro: true },
   { text: 'Weekly new releases digest',     free: false,       basic: false,        pro: true },
@@ -314,7 +313,7 @@ export default function PricingPage() {
 
         <div className="text-center">
           <Link href="/" className="text-sm text-gray-600 hover:text-gray-400 transition-colors">
-            ← Back to MoviePulse
+            ← Back to MovieDrop
           </Link>
         </div>
       </div>

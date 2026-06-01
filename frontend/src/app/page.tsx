@@ -6,7 +6,7 @@ import MovieCard from '@/components/MovieCard';
 import ScrollableRow from '@/components/ScrollableRow';
 import { Movie } from '@/lib/mockMovies';
 import { getLiveMoviesByCategory } from '@/lib/movies';
-import { Loader2, Bell, Mail, Smartphone, Film, Zap, Clock } from 'lucide-react';
+import { Loader2, Bell, Mail, Film, Zap, Clock } from 'lucide-react';
 
 const GENRES = [
   'Action', 'Comedy', 'Drama', 'Horror',
@@ -14,10 +14,10 @@ const GENRES = [
 ];
 
 const STATS = [
-  { value: '40+', label: 'Movies tracked' },
-  { value: 'Live', label: 'Data' },
-  { value: 'Free', label: 'To browse' },
-  { value: '2', label: 'Notification channels' },
+  { value: '1', label: 'Free notification' },
+  { value: '10', label: 'Basic plan movies' },
+  { value: '50', label: 'Pro plan movies' },
+  { value: 'Email', label: 'Notifications' },
 ];
 
 const HOW_IT_WORKS = [
@@ -223,7 +223,7 @@ export default function Home() {
                 Never miss a release again
               </h2>
               <p className="text-gray-400 text-sm mt-2 max-w-md mx-auto">
-                MoviePulse tracks every upcoming release and alerts you exactly when you want — no account needed.
+                MovieDrop tracks every upcoming release and alerts you exactly when you want — no account needed.
               </p>
             </div>
 
@@ -248,15 +248,12 @@ export default function Home() {
             {/* Notification channels */}
             <div className="mt-8 p-6 rounded-2xl border border-white/[0.07] bg-white/[0.02] flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
-                <p className="text-white font-extrabold text-base mb-1">Two ways to stay in the loop</p>
-                <p className="text-gray-400 text-sm">Choose email, push notifications, or both. No account required.</p>
+                <p className="text-white font-extrabold text-base mb-1">Stay in the loop via email</p>
+                <p className="text-gray-400 text-sm">Get notified by email before your movie releases. Sign in with Google to get started.</p>
               </div>
               <div className="flex gap-4 flex-shrink-0">
                 <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neon-pink/10 border border-neon-pink/20 text-neon-pink text-sm font-bold">
                   <Mail size={15} /> Email
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neon-teal/10 border border-neon-teal/20 text-neon-teal text-sm font-bold">
-                  <Smartphone size={15} /> Push <span className="text-[10px] font-black ml-1">PRO</span>
                 </div>
               </div>
             </div>

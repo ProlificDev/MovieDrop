@@ -11,10 +11,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'MoviePulse CineStream - Stream Premium Movies',
-  description: 'Immerse yourself in premium cinematic storytelling. Stream the latest now playing and popular movies in stunning Ultra HD, absolutely free.',
-  keywords: 'movies, stream, cinestream, streaming, watch movies, cinema, ultra hd',
-  authors: [{ name: 'MoviePulse Team' }],
+  title: 'MovieDrop - Never Miss a Release',
+  description: 'Browse now-playing movies, track upcoming releases, and get notified before they hit theatres. No account needed.',
+  keywords: 'movies, upcoming movies, movie notifications, cinema, movie tracker',
+  authors: [{ name: 'MovieDrop Team' }],
   icons: {
     icon: '/icon.png',
     shortcut: '/icon.png',

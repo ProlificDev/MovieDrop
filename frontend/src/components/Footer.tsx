@@ -49,7 +49,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-white/[0.05] pt-8 flex flex-col items-center gap-3 text-center">
           <p className="text-xs text-gray-600">
-            © {new Date().getFullYear()} MoviePulse. All rights reserved.
+            © {new Date().getFullYear()} MovieDrop. All rights reserved.
           </p>
         </div>
       </div>

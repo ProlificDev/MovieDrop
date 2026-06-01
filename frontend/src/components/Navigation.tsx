@@ -66,12 +66,12 @@ export default function Navigation() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
-              <img src="/logo.png" alt="MoviePulse" className="w-6 h-6 rounded-md transition-transform duration-300 group-hover:scale-110" />
+              <img src="/logo.png" alt="MovieDrop" className="w-6 h-6 rounded-md transition-transform duration-300 group-hover:scale-110" />
               <span
                 className="text-sm font-extrabold bg-clip-text text-transparent hidden sm:block"
                 style={{ backgroundImage: 'linear-gradient(90deg,#FF006E,#D946EF,#06B6D4)' }}
               >
-                MoviePulse
+                MovieDrop
               </span>
             </Link>
 
