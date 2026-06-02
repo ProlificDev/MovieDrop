@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Bell, BellOff, Calendar, Clock, Loader2, Mail, Smartphone } from 'lucide-react';
+import { Bell, BellOff, Calendar, Clock, Loader2, Mail } from 'lucide-react';
 import { getAllSubscriptions, unsubscribe } from '@/lib/subscriptions';
 import { getCurrentPlan, PLANS } from '@/lib/plan';
 import { useAuth } from '@/components/AuthProvider';
@@ -94,7 +94,7 @@ export default function NotificationsPage() {
             <p className="text-gray-400 text-sm">
               Movies you're tracking ·{' '}
               <span className="text-white font-bold">{subs.length}</span>
-              {' '}/ {planConfig.maxNotifications} on {planConfig.name} plan
+              {' '}on {planConfig.name} plan
             </p>
           </div>
           <Link
@@ -177,11 +177,6 @@ export default function NotificationsPage() {
                           <Mail size={10} className="text-neon-pink" />{sub.email}
                         </span>
                       )}
-                      {sub.push_subscription && (
-                        <span className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/[0.04] border border-white/[0.07] text-xs text-gray-400">
-                          <Smartphone size={10} className="text-neon-teal" />Push
-                        </span>
-                      )}
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {(sub.notify_days_before ?? []).sort((a: number, b: number) => b - a).map((d: number) => (
@@ -205,32 +200,7 @@ export default function NotificationsPage() {
           </div>
         )}
 
-        {/* Usage bar */}
-        {!loading && subs.length > 0 && (
-          <div className="mt-10 p-5 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Notification slots used</span>
-              <span className="text-xs font-extrabold text-white">{subs.length} / {planConfig.maxNotifications}</span>
-            </div>
-            <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${Math.min((subs.length / planConfig.maxNotifications) * 100, 100)}%`,
-                  background: subs.length >= planConfig.maxNotifications
-                    ? 'linear-gradient(90deg,#FF006E,#D946EF)'
-                    : 'linear-gradient(90deg,#06B6D4,#D946EF)',
-                }}
-              />
-            </div>
-            {subs.length >= planConfig.maxNotifications && (
-              <p className="text-xs text-neon-pink font-semibold mt-2">
-                Limit reached ·{' '}
-                <Link href="/pricing" className="underline hover:text-white transition-colors">Upgrade to add more</Link>
-              </p>
-            )}
-          </div>
-        )}
+
       </div>
     </div>
   );
