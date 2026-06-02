@@ -143,9 +143,11 @@ export default function MovieDetailPage({ params }: MovieDetailPageProps) {
                     </div>
                   )}
 
-                  <div className="flex-1">
-                    <NotificationButton movieId={movie!.id} movieTitle={movie!.title} />
-                  </div>
+                  {new Date(movie!.releaseDate) > new Date() && (
+                    <div className="flex-1">
+                      <NotificationButton movieId={movie!.id} movieTitle={movie!.title} />
+                    </div>
+                  )}
 
                   {providers?.link && (
                     <a

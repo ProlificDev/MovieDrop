@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bell, BellOff, Check, Loader2, ChevronDown, ChevronUp, Mail } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { checkSubscription, subscribe, unsubscribe, countSubscriptions } from '@/lib/subscriptions';
-import { getCurrentPlan, canAddNotification, PLANS } from '@/lib/plan';
-import { useAuth } from '@/components/AuthProvider';
+import { Bell, BellOff, Mail, Check, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  checkSubscription,
+  subscribe,
+  unsubscribe,
+} from '@/lib/subscriptions';
+import { getCurrentPlan, canUseCustomTiming, PLANS } from '@/lib/plan';
 import UpgradeModal from '@/components/UpgradeModal';
 
 const DAY_OPTIONS = [
@@ -22,22 +24,20 @@ interface Props {
 }
 
 export default function NotificationButton({ movieId, movieTitle }: Props) {
-  const { user } = useAuth();
-  const router = useRouter();
-
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const [selectedDays, setSelectedDays] = useState<number[]>([0, 1, 7]);
-  const [toast, setToast] = useState<string | null>(null);
+
+  const [email, setEmail] = useState('');
+  const [selectedDays, setSelectedDays] = useState<number[]>([0]);
+
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState('');
   const [upgradePlan, setUpgradePlan] = useState<'basic' | 'pro'>('basic');
+  const [toast, setToast] = useState<string | null>(null);
 
   const plan = getCurrentPlan();
-  const planConfig = PLANS[plan];
-  const userEmail = user?.email ?? '';
 
   useEffect(() => {
     let cancelled = false;
@@ -50,7 +50,8 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
         if (cancelled) return;
         if (data.subscribed && data.subscription) {
           setSubscribed(true);
-          setSelectedDays(data.subscription.notify_days_before ?? [0, 1, 7]);
+          setEmail(data.subscription.email ?? '');
+          setSelectedDays(data.subscription.notify_days_before ?? [0]);
         }
       } catch {
         if (!cancelled) setSubscribed(false);
@@ -73,47 +74,18 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
     );
   }
 
-  // One-click subscribe for logged-in users
-  async function handleOneClickSubscribe() {
-    if (!user) { router.push('/login'); return; }
-
-    const count = await countSubscriptions();
-    if (!canAddNotification(count)) {
-      const needed = plan === 'free' ? 'basic' : 'pro';
-      setUpgradeReason(`You've reached your ${planConfig.name} plan limit of ${planConfig.maxNotifications} movie${planConfig.maxNotifications === 1 ? '' : 's'}.`);
-      setUpgradePlan(needed as 'basic' | 'pro');
-      setUpgradeOpen(true);
-      return;
-    }
-
-    setSaving(true);
-    try {
-      await subscribe(movieId, selectedDays, userEmail);
-      setSubscribed(true);
-      showToast(`You'll be notified about "${movieTitle}" 🎬`);
-    } catch (e: any) {
-      if (e.message?.includes('limit')) {
-        setUpgradeReason(e.message);
-        setUpgradePlan(plan === 'free' ? 'basic' : 'pro');
-        setUpgradeOpen(true);
-      } else {
-        showToast(e.message ?? 'Something went wrong.');
-      }
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleUpdateSubscribe() {
+  async function handleSubscribe() {
+    if (!email) { showToast('Please enter your email address.'); return; }
     if (selectedDays.length === 0) { showToast('Pick at least one notification time.'); return; }
+
     setSaving(true);
     try {
-      await subscribe(movieId, selectedDays, userEmail);
+      await subscribe(movieId, selectedDays, email);
       setSubscribed(true);
       setExpanded(false);
-      showToast('Notification preferences updated.');
-    } catch {
-      showToast('Something went wrong.');
+      showToast(`You'll be notified about "${movieTitle}" 🎬`);
+    } catch (e: any) {
+      showToast(e.message ?? 'Something went wrong.');
     } finally {
       setSaving(false);
     }
@@ -133,7 +105,14 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
     }
   }
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 px-6 py-4 rounded-xl bg-white/[0.04] border border-white/[0.08] text-gray-500 text-sm">
+        <Loader2 size={16} className="animate-spin" />
+        <span>Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -165,45 +144,47 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
             </button>
           </div>
         ) : (
-          // One-click if logged in, expand panel if not
-          user ? (
-            <button
-              onClick={handleOneClickSubscribe}
-              disabled={saving}
-              className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-60"
-              style={{ background: 'rgba(255,0,110,0.08)', border: '1px solid rgba(255,0,110,0.25)', color: '#FF006E' }}
-            >
-              {saving ? <Loader2 size={15} className="animate-spin" /> : <Bell size={16} />}
-              {saving ? 'Saving...' : 'Notify Me'}
-            </button>
-          ) : (
-            <button
-              onClick={() => router.push('/login')}
-              className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-bold transition-all cursor-pointer"
-              style={{ background: 'rgba(255,0,110,0.08)', border: '1px solid rgba(255,0,110,0.25)', color: '#FF006E' }}
-            >
-              <Bell size={16} />
-              Sign in to get notified
-            </button>
-          )
+          <button
+            onClick={() => setExpanded(v => !v)}
+            className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-bold transition-all cursor-pointer"
+            style={{
+              background: expanded ? 'rgba(255,0,110,0.15)' : 'rgba(255,0,110,0.08)',
+              border: '1px solid rgba(255,0,110,0.25)',
+              color: '#FF006E',
+            }}
+          >
+            <Bell size={16} />
+            Notify Me
+            {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
         )}
 
-        {/* Expanded panel — only for logged-in users to change timing */}
-        {subscribed && expanded && (
+        {expanded && (
           <div className="mt-3 p-5 rounded-2xl bg-[#0e0a1a] border border-white/[0.08] space-y-5">
 
-            {/* Email display */}
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.07]">
-              <Mail size={13} className="text-neon-pink flex-shrink-0" />
-              <span className="text-sm text-gray-300 truncate">{userEmail}</span>
+            {/* Email */}
+            <div>
+              <label className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                <Mail size={12} className="text-neon-pink" />
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-neon-pink/40 transition-colors"
+              />
             </div>
 
             {/* Notify timing */}
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">Notify me</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">
+                Notify me
+              </label>
               <div className="flex flex-wrap gap-2">
                 {DAY_OPTIONS.map(opt => {
-                  const needsUpgrade = opt.value > 1 && plan === 'free';
+                  const needsUpgrade = opt.value > 1 && !canUseCustomTiming();
                   const active = selectedDays.includes(opt.value);
                   return (
                     <button
@@ -232,13 +213,21 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
               </div>
             </div>
 
+            {/* Save */}
             <button
-              onClick={handleUpdateSubscribe}
+              onClick={handleSubscribe}
               disabled={saving}
               className="w-full py-3 rounded-xl font-extrabold text-sm text-white transition-all cursor-pointer disabled:opacity-60"
-              style={{ background: 'linear-gradient(90deg,#FF006E,#D946EF)', boxShadow: '0 0 20px rgba(255,0,110,0.3)' }}
+              style={{
+                background: 'linear-gradient(90deg,#FF006E,#D946EF)',
+                boxShadow: '0 0 20px rgba(255,0,110,0.3)',
+              }}
             >
-              {saving ? <span className="flex items-center justify-center gap-2"><Loader2 size={15} className="animate-spin" /> Saving...</span> : 'Update Notifications'}
+              {saving ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 size={15} className="animate-spin" /> Saving...
+                </span>
+              ) : subscribed ? 'Update Notifications' : 'Turn On Notifications'}
             </button>
           </div>
         )}

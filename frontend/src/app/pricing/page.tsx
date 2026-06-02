@@ -29,16 +29,14 @@ interface Feature {
 }
 
 const features: Feature[] = [
-  { text: 'Browse all movies',              free: true,        basic: true,         pro: true },
-  { text: 'Trailers & where to watch',      free: true,        basic: true,         pro: true },
-  { text: 'Full movie details & cast',      free: true,        basic: true,         pro: true },
-  { text: 'Email release notifications',    free: '1 movie',   basic: '10 movies',  pro: '50 movies' },
-  { text: 'Custom notify timing',           free: false,       basic: true,         pro: true },
-  { text: 'Early release alerts (2 weeks)', free: false,       basic: true,         pro: true },
-  { text: 'Weekly new releases digest',     free: false,       basic: false,        pro: true },
-  { text: 'Hidden Gems curated picks',      free: false,       basic: false,        pro: true },
-  { text: 'Priority notification delivery', free: false,       basic: false,        pro: true },
-  { text: 'Ad-free experience',             free: false,       basic: true,         pro: true },
+  { text: 'Browse all movies',                    free: true,             basic: true,            pro: true },
+  { text: 'Trailers & where to watch',            free: true,             basic: true,            pro: true },
+  { text: 'Full movie details & cast',            free: true,             basic: true,            pro: true },
+  { text: 'Email notifications (unlimited)',      free: 'Release day only', basic: true,          pro: true },
+  { text: 'Notify 1 & 3 days before release',     free: false,            basic: true,            pro: true },
+  { text: 'Notify 7 & 14 days before release',    free: false,            basic: true,            pro: true },
+  { text: 'Weekly new releases digest',           free: false,            basic: false,           pro: true },
+  { text: 'Hidden Gems curated picks',            free: false,            basic: false,           pro: true },
 ];
 
 const plans = [
