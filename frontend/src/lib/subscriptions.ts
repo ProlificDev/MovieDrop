@@ -26,7 +26,6 @@ export async function subscribe(
   movieId: number,
   notifyDaysBefore: number[],
   email?: string,
-  pushSubscription?: PushSubscriptionJSON | null,
 ) {
   const anonId = getAnonymousId();
   const plan = getCurrentPlan();
@@ -39,7 +38,7 @@ export async function subscribe(
       notify_days_before: notifyDaysBefore,
       plan,
       email: email || null,
-      push_subscription: pushSubscription ?? null,
+      push_subscription: null,
     }),
   });
   if (!res.ok) {
@@ -78,43 +77,4 @@ export async function getAllSubscriptions(): Promise<any[]> {
   if (!res.ok) return [];
   const data = await res.json();
   return data.subscriptions ?? [];
-}
-
-// ── Push helpers ──────────────────────────────────────────────────────────
-
-export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return null;
-  try {
-    return await navigator.serviceWorker.register('/sw.js');
-  } catch {
-    return null;
-  }
-}
-
-export async function requestPushSubscription(): Promise<PushSubscriptionJSON | null> {
-  const reg = await registerServiceWorker();
-  if (!reg) return null;
-
-  const permission = await Notification.requestPermission();
-  if (permission !== 'granted') return null;
-
-  const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  if (!vapidKey) return null;
-
-  try {
-    const sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidKey) as unknown as BufferSource,
-    });
-    return sub.toJSON();
-  } catch {
-    return null;
-  }
-}
-
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const raw = atob(base64);
-  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }

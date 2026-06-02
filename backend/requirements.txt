@@ -12,3 +12,4 @@ resend==2.4.0
 pyjwt==2.8.0
 cryptography==42.0.7
 tenacity==8.3.0
+slowapi==0.1.9

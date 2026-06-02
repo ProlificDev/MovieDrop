@@ -1,14 +1,18 @@
 import json
-from fastapi import FastAPI
+import logging
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 
+logger = logging.getLogger("moviepulse.main")
+
+
 class Settings(BaseSettings):
-    """
-    Application environment configurations loader.
-    Auto-parses properties from system env or local .env file.
-    """
     SUPABASE_URL: str = ""
     SUPABASE_SERVICE_ROLE_KEY: str = ""
     TMDB_API_KEY: str = ""
@@ -17,13 +21,9 @@ class Settings(BaseSettings):
     VAPID_PUBLIC_KEY: str = ""
     VAPID_PRIVATE_KEY: str = ""
     VAPID_CLAIM_EMAIL: str = ""
-
-    # Paystack
     PAYSTACK_SECRET_KEY: str = ""
     PAYSTACK_WEBHOOK_SECRET: str = ""
-
     BACKEND_CORS_ORIGINS: str = '["http://localhost:3000","https://moviedrop.netlify.app","https://6a1c699144c0772b0cc6b020--moviedrop.netlify.app"]'
-
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -38,15 +38,21 @@ class Settings(BaseSettings):
         except Exception:
             return ["http://localhost:3000"]
 
+
 settings = Settings()
+
+limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
 
 app = FastAPI(
     title="MovieDrop API",
-    description="Asynchronous Movie Watchlist & Release Notification Engine",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url=None,   # disable Swagger UI in production
+    redoc_url=None,  # disable ReDoc in production
 )
 
-# Apply CORS Middleware
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -55,19 +61,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Central Router mapping versioned API routes
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled error on {request.url}: {exc}")
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+
+
 from app.api.router import api_router
 app.include_router(api_router)
 
+
 @app.get("/health", tags=["System"])
 async def health_check():
-    """
-    Simple system check endpoint for deployment monitoring.
-    """
-    return {
-        "status": "online",
-        "service": "MovieDrop Backend REST Engine",
-        "version": "1.0.0",
-        "tmdb_status": "configured" if settings.TMDB_API_KEY else "missing_key",
-        "database_status": "configured" if settings.SUPABASE_URL else "missing_url"
-    }
+    return {"status": "online"}
