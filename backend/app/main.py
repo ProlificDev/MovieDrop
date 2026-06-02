@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     VAPID_CLAIM_EMAIL: str = ""
     PAYSTACK_SECRET_KEY: str = ""
     PAYSTACK_WEBHOOK_SECRET: str = ""
+    CRON_SECRET: str = ""
     BACKEND_CORS_ORIGINS: str = '["http://localhost:3000","https://moviedrop.netlify.app","https://6a1c699144c0772b0cc6b020--moviedrop.netlify.app"]'
 
     model_config = SettingsConfigDict(
