@@ -3,6 +3,7 @@ export type Plan = 'free' | 'basic' | 'pro';
 export interface PlanConfig {
   name: string;
   price: number;
+  maxNotifications: number | null; // null = unlimited
   emailNotifications: boolean;
   customTiming: boolean;
   weeklyDigest: boolean;
@@ -13,6 +14,7 @@ export const PLANS: Record<Plan, PlanConfig> = {
   free: {
     name: 'Free',
     price: 0,
+    maxNotifications: 10,
     emailNotifications: true,
     customTiming: false,
     weeklyDigest: false,
@@ -21,6 +23,7 @@ export const PLANS: Record<Plan, PlanConfig> = {
   basic: {
     name: 'Basic',
     price: 1500,
+    maxNotifications: null,
     emailNotifications: true,
     customTiming: true,
     weeklyDigest: false,
@@ -29,6 +32,7 @@ export const PLANS: Record<Plan, PlanConfig> = {
   pro: {
     name: 'Pro',
     price: 4500,
+    maxNotifications: null,
     emailNotifications: true,
     customTiming: true,
     weeklyDigest: true,
@@ -51,8 +55,10 @@ export function getPlanConfig(plan?: Plan): PlanConfig {
   return PLANS[plan ?? getCurrentPlan()];
 }
 
-export function canAddNotification(): boolean {
-  return true; // unlimited for all plans
+export function canAddNotification(currentCount: number): boolean {
+  const { maxNotifications } = getPlanConfig();
+  if (maxNotifications === null) return true;
+  return currentCount < maxNotifications;
 }
 
 export function canUseCustomTiming(): boolean {

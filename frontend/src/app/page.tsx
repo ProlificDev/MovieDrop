@@ -14,10 +14,10 @@ const GENRES = [
 ];
 
 const STATS = [
-  { value: '1', label: 'Free notification' },
-  { value: '10', label: 'Basic plan movies' },
-  { value: '50', label: 'Pro plan movies' },
+  { value: '10', label: 'Free notifications' },
+  { value: '∞', label: 'Paid plan movies' },
   { value: 'Email', label: 'Notifications' },
+  { value: 'Free', label: 'To get started' },
 ];
 
 const HOW_IT_WORKS = [
@@ -29,12 +29,12 @@ const HOW_IT_WORKS = [
   {
     icon: <Bell size={24} className="text-neon-teal" />,
     title: 'Subscribe',
-    desc: 'Pick any movie and choose when you want to be notified — 1 day, 7 days, or release day.',
+    desc: 'Sign in and click "Notify Me" on any upcoming movie — one tap is all it takes.',
   },
   {
     icon: <Zap size={24} className="text-neon-yellow" />,
     title: 'Get Notified',
-    desc: 'Receive email or push notifications automatically before your movie hits theatres.',
+    desc: 'Receive an email automatically before your movie hits theatres. Never miss a release.',
   },
 ];
 

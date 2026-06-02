@@ -57,20 +57,18 @@ export default function UpgradeModal({
 
         {/* Key perks */}
         <ul className="space-y-2 mb-8">
-          {requiredPlan === 'basic' && (
+        {requiredPlan === 'basic' && (
             <>
-              <PerkRow text="Up to 10 movie notifications" />
-              <PerkRow text="Choose notify timing (1 day, 7 days before)" />
+              <PerkRow text="Unlimited movie notifications" />
+              <PerkRow text="Notify 1, 3, 7 & 14 days before release" />
               <PerkRow text="Early access to upcoming release alerts" />
-              <PerkRow text="No ads" />
             </>
           )}
           {requiredPlan === 'pro' && (
             <>
-              <PerkRow text="Up to 50 movie notifications" />
-              <PerkRow text="Weekly 'What's New' digest" />
+              <PerkRow text="Everything in Basic" />
+              <PerkRow text="Weekly new releases digest" />
               <PerkRow text="Exclusive Hidden Gems picks" />
-              <PerkRow text="Priority notification delivery" />
             </>
           )}
         </ul>

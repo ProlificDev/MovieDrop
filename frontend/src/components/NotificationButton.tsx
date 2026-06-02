@@ -1,22 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Bell, BellOff, Mail, Check, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bell, BellOff, Check, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/AuthProvider';
 import {
   checkSubscription,
   subscribe,
   unsubscribe,
+  countSubscriptions,
 } from '@/lib/subscriptions';
-import { getCurrentPlan, canUseCustomTiming, PLANS } from '@/lib/plan';
+import { getCurrentPlan, canAddNotification, PLANS } from '@/lib/plan';
 import UpgradeModal from '@/components/UpgradeModal';
-
-const DAY_OPTIONS = [
-  { label: 'Release day', value: 0 },
-  { label: '1 day before', value: 1 },
-  { label: '3 days before', value: 3 },
-  { label: '7 days before', value: 7 },
-  { label: '14 days before', value: 14 },
-];
 
 interface Props {
   movieId: number;
@@ -24,22 +19,22 @@ interface Props {
 }
 
 export default function NotificationButton({ movieId, movieTitle }: Props) {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-
-  const [email, setEmail] = useState('');
-  const [selectedDays, setSelectedDays] = useState<number[]>([0]);
-
+  const [toast, setToast] = useState<string | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [upgradeReason, setUpgradeReason] = useState('');
-  const [upgradePlan, setUpgradePlan] = useState<'basic' | 'pro'>('basic');
-  const [toast, setToast] = useState<string | null>(null);
 
   const plan = getCurrentPlan();
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) { setLoading(false); return; }
+
     let cancelled = false;
     async function run() {
       try {
@@ -47,42 +42,51 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
           checkSubscription(movieId),
           new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 5000)),
         ]);
-        if (cancelled) return;
-        if (data.subscribed && data.subscription) {
-          setSubscribed(true);
-          setEmail(data.subscription.email ?? '');
-          setSelectedDays(data.subscription.notify_days_before ?? [0]);
-        }
+        if (!cancelled && data.subscribed) setSubscribed(true);
       } catch {
-        if (!cancelled) setSubscribed(false);
+        // keep as not subscribed
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
     run();
     return () => { cancelled = true; };
-  }, [movieId]);
+  }, [movieId, user, authLoading]);
 
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(null), 3000);
   }
 
-  function toggleDay(val: number) {
-    setSelectedDays(prev =>
-      prev.includes(val) ? prev.filter(d => d !== val) : [...prev, val]
-    );
-  }
+  async function handleClick() {
+    if (!user) { router.push('/login'); return; }
 
-  async function handleSubscribe() {
-    if (!email) { showToast('Please enter your email address.'); return; }
-    if (selectedDays.length === 0) { showToast('Pick at least one notification time.'); return; }
+    if (subscribed) {
+      setSaving(true);
+      try {
+        await unsubscribe(movieId);
+        setSubscribed(false);
+        showToast('Notifications turned off.');
+      } catch {
+        showToast('Failed to unsubscribe.');
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
+    // Check free plan limit
+    const count = await countSubscriptions();
+    if (!canAddNotification(count)) {
+      setUpgradeReason(`You've reached the free plan limit of 10 movies. Upgrade to track unlimited movies.`);
+      setUpgradeOpen(true);
+      return;
+    }
 
     setSaving(true);
     try {
-      await subscribe(movieId, selectedDays, email);
+      await subscribe(movieId, [0], user.email!);
       setSubscribed(true);
-      setExpanded(false);
       showToast(`You'll be notified about "${movieTitle}" 🎬`);
     } catch (e: any) {
       showToast(e.message ?? 'Something went wrong.');
@@ -91,28 +95,7 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
     }
   }
 
-  async function handleUnsubscribe() {
-    setSaving(true);
-    try {
-      await unsubscribe(movieId);
-      setSubscribed(false);
-      setExpanded(false);
-      showToast('Notifications turned off.');
-    } catch {
-      showToast('Failed to unsubscribe.');
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center gap-2 px-6 py-4 rounded-xl bg-white/[0.04] border border-white/[0.08] text-gray-500 text-sm">
-        <Loader2 size={16} className="animate-spin" />
-        <span>Loading...</span>
-      </div>
-    );
-  }
+  if (authLoading || loading) return null;
 
   return (
     <>
@@ -122,116 +105,43 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
         </div>
       )}
 
-      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} requiredPlan={upgradePlan} reason={upgradeReason} />
+      <UpgradeModal
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        requiredPlan="basic"
+        reason={upgradeReason}
+      />
 
-      <div className="w-full max-w-sm">
-        {subscribed ? (
-          <div className="flex gap-2">
-            <button
-              onClick={() => setExpanded(v => !v)}
-              className="flex items-center gap-2 px-5 py-3.5 rounded-xl bg-neon-teal/10 border border-neon-teal/30 text-neon-teal text-sm font-bold transition-all hover:bg-neon-teal/15 cursor-pointer"
-            >
-              <Check size={16} strokeWidth={2.5} />
-              Notified
-              {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </button>
-            <button
-              onClick={handleUnsubscribe}
-              disabled={saving}
-              className="flex items-center gap-2 px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-gray-400 hover:text-white text-sm font-bold transition-all cursor-pointer disabled:opacity-50"
-            >
-              {saving ? <Loader2 size={15} className="animate-spin" /> : <BellOff size={15} />}
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setExpanded(v => !v)}
-            className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-bold transition-all cursor-pointer"
-            style={{
-              background: expanded ? 'rgba(255,0,110,0.15)' : 'rgba(255,0,110,0.08)',
-              border: '1px solid rgba(255,0,110,0.25)',
-              color: '#FF006E',
-            }}
-          >
-            <Bell size={16} />
-            Notify Me
-            {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
-        )}
-
-        {expanded && (
-          <div className="mt-3 p-5 rounded-2xl bg-[#0e0a1a] border border-white/[0.08] space-y-5">
-
-            {/* Email */}
-            <div>
-              <label className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
-                <Mail size={12} className="text-neon-pink" />
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-neon-pink/40 transition-colors"
-              />
-            </div>
-
-            {/* Notify timing */}
-            <div>
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">
-                Notify me
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {DAY_OPTIONS.map(opt => {
-                  const needsUpgrade = opt.value > 1 && !canUseCustomTiming();
-                  const active = selectedDays.includes(opt.value);
-                  return (
-                    <button
-                      key={opt.value}
-                      onClick={() => {
-                        if (needsUpgrade) {
-                          setUpgradeReason('Custom notification timing requires the Basic plan.');
-                          setUpgradePlan('basic');
-                          setUpgradeOpen(true);
-                          return;
-                        }
-                        toggleDay(opt.value);
-                      }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer ${
-                        active
-                          ? 'bg-neon-pink/15 text-neon-pink border-neon-pink/40'
-                          : needsUpgrade
-                          ? 'bg-white/[0.02] text-gray-600 border-white/[0.04] opacity-50'
-                          : 'bg-white/[0.04] text-gray-400 border-white/[0.08] hover:border-white/20'
-                      }`}
-                    >
-                      {opt.label}{needsUpgrade && ' 🔒'}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Save */}
-            <button
-              onClick={handleSubscribe}
-              disabled={saving}
-              className="w-full py-3 rounded-xl font-extrabold text-sm text-white transition-all cursor-pointer disabled:opacity-60"
-              style={{
-                background: 'linear-gradient(90deg,#FF006E,#D946EF)',
-                boxShadow: '0 0 20px rgba(255,0,110,0.3)',
-              }}
-            >
-              {saving ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 size={15} className="animate-spin" /> Saving...
-                </span>
-              ) : subscribed ? 'Update Notifications' : 'Turn On Notifications'}
-            </button>
-          </div>
-        )}
-      </div>
+      {subscribed ? (
+        <button
+          onClick={handleClick}
+          disabled={saving}
+          className="flex items-center gap-2 px-5 py-3.5 rounded-xl bg-neon-teal/10 border border-neon-teal/30 text-neon-teal text-sm font-bold transition-all hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 cursor-pointer disabled:opacity-50 group"
+        >
+          {saving ? <Loader2 size={15} className="animate-spin" /> : (
+            <>
+              <Check size={16} strokeWidth={2.5} className="group-hover:hidden" />
+              <BellOff size={15} className="hidden group-hover:block" />
+            </>
+          )}
+          <span className="group-hover:hidden">Notified</span>
+          <span className="hidden group-hover:inline">Turn Off</span>
+        </button>
+      ) : (
+        <button
+          onClick={handleClick}
+          disabled={saving}
+          className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-60"
+          style={{
+            background: 'rgba(255,0,110,0.08)',
+            border: '1px solid rgba(255,0,110,0.25)',
+            color: '#FF006E',
+          }}
+        >
+          {saving ? <Loader2 size={15} className="animate-spin" /> : <Bell size={16} />}
+          {saving ? 'Saving...' : user ? 'Notify Me' : 'Sign in to get notified'}
+        </button>
+      )}
     </>
   );
 }
