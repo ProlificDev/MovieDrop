@@ -1,5 +1,6 @@
 import logging
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Request
+from app.main import limiter
 from app.services.sync import SyncService
 
 
@@ -9,7 +10,8 @@ router = APIRouter(prefix="/sync", tags=["Pipeline Sync"])
 
 
 @router.post("/trigger-sync-now")
-async def trigger_synchronous_sync(max_pages: int = 2, clear_first: bool = False):
+@limiter.limit("5/minute")
+async def trigger_synchronous_sync(request: Request, max_pages: int = 2, clear_first: bool = False):
     """
     Runs the synchronization pipeline synchronously.
     Set clear_first=true to wipe old movies before syncing fresh 2025 data.

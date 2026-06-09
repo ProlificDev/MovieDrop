@@ -17,7 +17,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https://image.tmdb.org https://images.unsplash.com https://picsum.photos https://i.ytimg.com https://lh3.googleusercontent.com",
               "frame-src https://www.youtube.com https://checkout.paystack.com",
-              "connect-src 'self' https://*.supabase.co https://moviedrop-backend.onrender.com",
+              "connect-src 'self' https://*.supabase.co https://moviedrop-backend.onrender.com https://moviedrop.site https://www.moviedrop.site",
               "font-src 'self'",
             ].join('; '),
           },

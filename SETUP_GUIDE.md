@@ -206,13 +206,15 @@ Create these services from the same repo/backend folder:
 | :-- | :-- |
 | `MovieDrop-backend` | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
 
+Backend is hosted on **Render** at `https://moviedrop-backend.onrender.com`.
+
 
 Add backend env vars from `backend/.env` to each Railway service.
 
 After deploying the frontend, update Railway:
 
 ```env
-BACKEND_CORS_ORIGINS=["https://your-app.netlify.app"]
+BACKEND_CORS_ORIGINS=["https://moviedrop.site","https://www.moviedrop.site","https://moviedrop.netlify.app"]
 ```
 
 ---

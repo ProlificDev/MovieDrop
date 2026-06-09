@@ -48,11 +48,11 @@ export default function MovieCard({
               ✨ Featured Masterpiece
             </span>
             
-            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold text-white mb-4 md:mb-6 leading-tight tracking-tight drop-shadow-xl">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-4 md:mb-6 leading-tight tracking-tight drop-shadow-xl">
               {movie.title}
             </h1>
             
-            <p className="text-sm sm:text-base md:text-lg text-gray-400 md:text-gray-300 mb-6 md:mb-8 max-w-xl leading-relaxed drop-shadow line-clamp-4 md:line-clamp-none">
+            <p className="text-base sm:text-lg md:text-xl text-gray-400 md:text-gray-300 mb-6 md:mb-8 max-w-xl leading-relaxed drop-shadow line-clamp-4 md:line-clamp-none">
               {movie.overview}
             </p>
             

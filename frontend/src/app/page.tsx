@@ -146,7 +146,7 @@ export default function Home() {
           {/* ── Coming Soon This Month ────────────────────── */}
           {nextRelease && new Date(nextRelease.releaseDate) > new Date() && (
             <section>
-              <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-6">
+              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-6">
                 🚀 Next Big Release
               </h2>
               <div className="relative rounded-2xl border border-neon-pink/20 bg-gradient-to-r from-neon-pink/[0.06] to-neon-teal/[0.03] overflow-hidden p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
@@ -162,7 +162,7 @@ export default function Home() {
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-black text-neon-pink uppercase tracking-widest mb-2">Coming Soon</p>
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-white mb-2 line-clamp-1">{nextRelease.title}</h3>
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-2 line-clamp-1">{nextRelease.title}</h3>
                   <p className="text-gray-400 text-sm mb-4 line-clamp-2">{nextRelease.overview}</p>
 
                   <div className="flex items-center gap-2 mb-4">
@@ -197,7 +197,7 @@ export default function Home() {
 
           {/* ── Genre Quick-Links ─────────────────────────── */}
           <section>
-            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-6">
+            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-6">
               🎭 Browse by Genre
             </h2>
             <div className="flex flex-wrap gap-3">
@@ -219,10 +219,10 @@ export default function Home() {
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-neon-pink/10 border border-neon-pink/20 text-neon-pink text-xs font-bold tracking-widest uppercase mb-4">
                 How it works
               </span>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">
                 Never miss a release again
               </h2>
-              <p className="text-gray-400 text-sm mt-2 max-w-md mx-auto">
+              <p className="text-gray-400 text-base mt-2 max-w-md mx-auto">
                 MovieDrop tracks every upcoming release and alerts you exactly when you want — no account needed.
               </p>
             </div>
@@ -239,8 +239,8 @@ export default function Home() {
                   <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/[0.04] border border-white/[0.08] mx-auto mb-4">
                     {step.icon}
                   </div>
-                  <h3 className="text-white font-extrabold text-base mb-2">{step.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{step.desc}</p>
+                  <h3 className="text-white font-extrabold text-lg sm:text-xl mb-2">{step.title}</h3>
+                  <p className="text-gray-400 text-base leading-relaxed">{step.desc}</p>
                 </div>
               ))}
             </div>

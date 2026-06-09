@@ -1,7 +1,8 @@
 import logging
 from uuid import UUID
 from typing import Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from app.main import limiter
 from pydantic import BaseModel, EmailStr, field_validator
 
 logger = logging.getLogger("moviepulse.api.subscriptions")
@@ -56,7 +57,8 @@ def _parse_uuid(value: str) -> UUID:
 
 
 @router.post("", status_code=201)
-async def subscribe(body: SubscribeRequest):
+@limiter.limit("20/minute")
+async def subscribe(request: Request, body: SubscribeRequest):
     from app.services.subscriptions import SubscriptionService
     anon_id = _parse_uuid(body.anonymous_id)
     svc = SubscriptionService()

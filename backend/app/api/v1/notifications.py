@@ -1,5 +1,6 @@
 import logging
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Header, HTTPException, Request
+from app.main import limiter
 from app.services.subscriptions import SubscriptionService
 from app.services.notifications import NotificationService
 from datetime import datetime, timedelta, timezone
@@ -12,7 +13,8 @@ CRON_SECRET = getattr(settings, "CRON_SECRET", "")
 
 
 @router.post("/send", status_code=200)
-async def send_notifications(x_cron_secret: str = Header(default="")):
+@limiter.limit("5/minute")
+async def send_notifications(request: Request, x_cron_secret: str = Header(default="")):
     """
     Triggered daily by cron-job.org.
     Loops through all subscriptions and sends email notifications
