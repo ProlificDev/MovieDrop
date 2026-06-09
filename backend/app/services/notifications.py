@@ -27,7 +27,7 @@ class NotificationService:
         html = self._email_html(movie_title, release_date, days_before, movie_id, poster_path)
         try:
             resend.Emails.send({
-                "from": "MoviePulse <onboarding@resend.dev>",
+                "from": "MovieDrop <notifications@moviedrop.site>",
                 "to": [to_email],
                 "subject": subject,
                 "html": html,
@@ -86,12 +86,12 @@ class NotificationService:
             {poster_html}
             <h1 style="font-size:22px;margin-bottom:8px;">{subject}</h1>
             <p style="color:#9ca3af;font-size:14px;margin-bottom:24px;">Release date: <strong style="color:#f1ecfa;">{release_date}</strong></p>
-            <a href="https://moviepulse.app/movies/{movie_id}"
+            <a href="https://moviedrop.site/movies/{movie_id}"
                style="display:inline-block;background:linear-gradient(90deg,#FF006E,#D946EF);color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:800;font-size:14px;">
                View Movie →
             </a>
             <p style="color:#4b5563;font-size:11px;margin-top:32px;">
-                You're receiving this because you subscribed on MoviePulse.<br/>
+                You're receiving this because you subscribed on MovieDrop.<br/>
                 To unsubscribe, visit the movie page and turn off notifications.
             </p>
         </div>

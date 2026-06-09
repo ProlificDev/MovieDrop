@@ -17,7 +17,6 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_ROLE_KEY: str = ""
     TMDB_API_KEY: str = ""
     RESEND_API_KEY: str = ""
-    REDIS_URL: str = ""
     VAPID_PUBLIC_KEY: str = ""
     VAPID_PRIVATE_KEY: str = ""
     VAPID_CLAIM_EMAIL: str = ""

@@ -11,7 +11,7 @@ Use this as the project setup checklist. The current frontend is public to view 
 | Supabase | Postgres database, RLS, future user/watchlist tables | https://supabase.com |
 | TMDB | Movie release data | https://www.themoviedb.org/signup |
 | Resend | Future notification emails | https://resend.com |
-| Upstash | Redis broker for Celery worker/beat | https://upstash.com |
+
 | Netlify | Frontend hosting | https://netlify.com |
 | Railway | Backend, worker, and scheduler hosting | https://railway.app |
 
@@ -64,7 +64,6 @@ TMDB_API_KEY="your-tmdb-api-key"
 
 RESEND_API_KEY="re_..."
 
-REDIS_URL="rediss://default:password@host.upstash.io:6379"
 
 VAPID_PUBLIC_KEY="your-vapid-public-key"
 VAPID_PRIVATE_KEY="your-vapid-private-key"
@@ -189,26 +188,6 @@ start-MovieDrop-dev.bat
 
 ---
 
-## Step 8 - Optional Celery Worker + Beat Scheduler
-
-Only needed for scheduled background syncs. Open two terminals inside `backend/` with the virtual environment active.
-
-Worker:
-
-```bash
-celery -A app.tasks.worker.celery_app worker --loglevel=info
-```
-
-Beat scheduler:
-
-```bash
-celery -A app.tasks.worker.celery_app beat --loglevel=info
-```
-
-The beat scheduler runs the movie sync daily at midnight UTC.
-
----
-
 ## Step 9 - Deploy
 
 ### Frontend - Netlify
@@ -226,8 +205,7 @@ Create these services from the same repo/backend folder:
 | Service | Start command |
 | :-- | :-- |
 | `MovieDrop-backend` | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
-| `MovieDrop-worker` | `celery -A app.tasks.worker.celery_app worker --loglevel=info` |
-| `MovieDrop-beat` | `celery -A app.tasks.worker.celery_app beat --loglevel=info` |
+
 
 Add backend env vars from `backend/.env` to each Railway service.
 
@@ -259,8 +237,7 @@ BACKEND_CORS_ORIGINS=["https://your-app.netlify.app"]
 | `backend/app/main.py` | FastAPI entry point and CORS |
 | `backend/app/services/sync.py` | TMDB to Supabase sync |
 | `backend/app/api/v1/sync.py` | Manual and async sync endpoints |
-| `backend/app/tasks/worker.py` | Celery app |
-| `backend/app/tasks/scheduler.py` | Daily Celery Beat job |
+
 | `frontend/netlify.toml` | Netlify build and API rewrite |
 | `backend/Procfile` | Railway process definitions |
 | `backend/Dockerfile` | Backend container |
