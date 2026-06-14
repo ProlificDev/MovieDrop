@@ -82,6 +82,25 @@ async def subscribe(request: Request, body: SubscribeRequest):
         email=body.email,
         push_subscription=None,  # push disabled
     )
+
+    if body.email:
+        try:
+            movie_res = svc.supabase.table("movies").select("title, release_date, poster_path").eq("id", body.movie_id).limit(1).execute()
+            if movie_res.data:
+                movie = movie_res.data[0]
+                from app.services.notifications import NotificationService
+                notif = NotificationService()
+                await notif.send_email(
+                    to_email=body.email,
+                    movie_title=movie.get("title") or "Unknown",
+                    release_date=movie.get("release_date") or "TBD",
+                    days_before=-1,
+                    movie_id=body.movie_id,
+                    poster_path=movie.get("poster_path"),
+                )
+        except Exception as e:
+            logger.error(f"Failed to send immediate confirmation email: {e}")
+
     return {"status": "success", "subscription": result}
 
 

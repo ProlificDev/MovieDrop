@@ -45,6 +45,8 @@ class NotificationService:
     # ── Helpers ──────────────────────────────────────────────────────────
 
     def _email_subject(self, title: str, days_before: int) -> str:
+        if days_before == -1:
+            return f"✅ You're officially tracking {title}!"
         if days_before == 0:
             return f"🎬 {title} is out TODAY!"
         if days_before == 1:
