@@ -4,6 +4,7 @@ import './globals.css';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import SignInReminder from '@/components/SignInReminder';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -45,6 +46,7 @@ export default function RootLayout({
             <ScrollToTop />
             <main className="pt-20 sm:pt-24">{children}</main>
             <Footer />
+            <SignInReminder />
           </div>
           </AuthProvider>
         </ThemeProvider>

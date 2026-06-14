@@ -85,7 +85,11 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
 
     setSaving(true);
     try {
-      await subscribe(movieId, [0], user.email!);
+      let days = [0];
+      if (plan === 'basic') days = [0, 1, 3];
+      if (plan === 'pro') days = [0, 1, 3, 7, 14];
+
+      await subscribe(movieId, days, user.email!);
       setSubscribed(true);
       showToast(`You'll be notified about "${movieTitle}" 🎬`);
     } catch (e: any) {
