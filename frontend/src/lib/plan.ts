@@ -14,7 +14,7 @@ export const PLANS: Record<Plan, PlanConfig> = {
   free: {
     name: 'Free',
     price: 0,
-    maxNotifications: 10,
+    maxNotifications: 5,
     emailNotifications: true,
     customTiming: false,
     weeklyDigest: false,

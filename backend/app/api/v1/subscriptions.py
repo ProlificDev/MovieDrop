@@ -9,7 +9,7 @@ logger = logging.getLogger("moviepulse.api.subscriptions")
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
 
 VALID_DAYS = {0, 1, 3, 7, 14}
-PLAN_LIMITS = {"free": 10, "basic": None, "pro": None}  # None = unlimited
+PLAN_LIMITS = {"free": 5, "basic": None, "pro": None}  # None = unlimited
 
 
 class SubscribeRequest(BaseModel):

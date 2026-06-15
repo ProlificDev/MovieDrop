@@ -14,7 +14,7 @@ const GENRES = [
 ];
 
 const STATS = [
-  { value: '10', label: 'Free notifications' },
+  { value: '5', label: 'Free notifications' },
   { value: '∞', label: 'Paid plan movies' },
   { value: 'Email', label: 'Notifications' },
   { value: 'Free', label: 'To get started' },

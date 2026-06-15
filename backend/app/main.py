@@ -74,4 +74,16 @@ app.include_router(api_router)
 
 @app.get("/health", tags=["System"])
 async def health_check():
-    return {"status": "online"}
+    from datetime import datetime, timezone
+    return {
+        "status": "online",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "tmdb_status": "configured" if settings.TMDB_API_KEY else "missing",
+        "database_status": "configured" if settings.SUPABASE_URL else "missing_url",
+    }
+
+
+@app.get("/ping", tags=["System"])
+async def ping():
+    """Lightweight keep-alive endpoint. Hit every 10 min by cron to prevent Render cold starts."""
+    return {"pong": True}

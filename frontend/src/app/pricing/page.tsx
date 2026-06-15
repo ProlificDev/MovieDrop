@@ -32,7 +32,7 @@ const features: Feature[] = [
   { text: 'Browse all movies',                    free: true,             basic: true,            pro: true },
   { text: 'Trailers & where to watch',            free: true,             basic: true,            pro: true },
   { text: 'Full movie details & cast',            free: true,             basic: true,            pro: true },
-  { text: 'Email notifications',                  free: 'Up to 10 movies', basic: 'Unlimited',     pro: 'Unlimited' },
+  { text: 'Email notifications',                  free: 'Up to 5 movies',  basic: 'Unlimited',     pro: 'Unlimited' },
   { text: 'Notify 1 & 3 days before release',     free: false,            basic: true,            pro: true },
   { text: 'Notify 7 & 14 days before release',    free: false,            basic: true,            pro: true },
   { text: 'Weekly new releases digest',           free: false,            basic: false,           pro: true },

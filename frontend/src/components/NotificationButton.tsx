@@ -78,7 +78,7 @@ export default function NotificationButton({ movieId, movieTitle }: Props) {
     // Check free plan limit
     const count = await countSubscriptions();
     if (!canAddNotification(count)) {
-      setUpgradeReason(`You've reached the free plan limit of 10 movies. Upgrade to track unlimited movies.`);
+      setUpgradeReason(`You've reached the free plan limit of 5 movies. Upgrade to track unlimited movies.`);
       setUpgradeOpen(true);
       return;
     }
