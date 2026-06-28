@@ -185,7 +185,7 @@ export default function Navigation() {
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.07]">
           <span className="text-sm font-extrabold text-white">Menu</span>
-          <button onClick={() => setIsMenuOpen(false)} className="text-gray-400 hover:text-white cursor-pointer">
+          <button onClick={() => setIsMenuOpen(false)} aria-label="Close menu" className="text-gray-400 hover:text-white cursor-pointer">
             <X size={18} />
           </button>
         </div>
