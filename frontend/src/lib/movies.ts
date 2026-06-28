@@ -100,7 +100,7 @@ export async function getLiveMoviesByGenre(genre: string): Promise<Movie[]> {
     }
 
     const mapped = (data || []).map(mapDbMovieToFrontendMovie);
-    return mapped.filter(m => m.genres.some(g => g.toLowerCase() === genre.toLowerCase()));
+    return mapped.filter(m => m.genres.some((g: string) => g.toLowerCase() === genre.toLowerCase()));
   } catch (err) {
     console.error(`Unhandled error in getLiveMoviesByGenre(${genre}):`, err);
     return [];
@@ -147,7 +147,7 @@ export async function getLiveRelatedMovies(movieId: number, limit: number = 6): 
     const mapped = (data || []).map(mapDbMovieToFrontendMovie);
     
     return mapped
-      .filter(m => m.genres.some(g => currentMovie.genres.includes(g)))
+      .filter(m => m.genres.some((g: string) => currentMovie.genres.includes(g)))
       .slice(0, limit);
   } catch (err) {
     console.error(`Unhandled error in getLiveRelatedMovies(${movieId}):`, err);

@@ -178,7 +178,7 @@ export default function MovieCard({
             {movie.title}
           </h3>
           <div className="flex flex-wrap gap-1 mt-1.5">
-            {movie.genres.slice(0, 2).map((genre) => (
+            {movie.genres.slice(0, 2).map((genre: string) => (
               <span key={genre} className="bg-white/[0.04] text-gray-400 text-[10px] px-2 py-0.5 rounded-full border border-white/[0.04]">
                 {genre}
               </span>

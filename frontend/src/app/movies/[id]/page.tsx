@@ -116,7 +116,7 @@ export default function MovieDetailPage({ params }: MovieDetailPageProps) {
 
                 {/* Genres */}
                 <div className="flex flex-wrap gap-2 mb-8">
-                  {movie!.genres.map(genre => (
+                  {movie!.genres.map((genre: string) => (
                     <span key={genre} className="bg-white/[0.04] text-gray-300 px-3 py-1 rounded-full text-xs font-bold border border-white/[0.06]">{genre}</span>
                   ))}
                 </div>
@@ -210,7 +210,7 @@ export default function MovieDetailPage({ params }: MovieDetailPageProps) {
                     <span className="text-sm font-bold text-neon-teal uppercase tracking-widest">Stream</span>
                   </div>
                   <div className="flex flex-wrap gap-3">
-                    {streamingProviders.map(p => (
+                    {streamingProviders.map((p: import('@/lib/mockMovies').WatchProvider) => (
                       <a
                         key={p.provider_id}
                         href={providers?.link || '#'}
@@ -237,7 +237,7 @@ export default function MovieDetailPage({ params }: MovieDetailPageProps) {
                     <span className="text-sm font-bold text-neon-pink uppercase tracking-widest">Rent</span>
                   </div>
                   <div className="flex flex-wrap gap-3">
-                    {rentProviders.map(p => (
+                    {rentProviders.map((p: import('@/lib/mockMovies').WatchProvider) => (
                       <a
                         key={p.provider_id}
                         href={providers?.link || '#'}
@@ -264,7 +264,7 @@ export default function MovieDetailPage({ params }: MovieDetailPageProps) {
                     <span className="text-sm font-bold text-neon-yellow uppercase tracking-widest">Buy</span>
                   </div>
                   <div className="flex flex-wrap gap-3">
-                    {buyProviders.map(p => (
+                    {buyProviders.map((p: import('@/lib/mockMovies').WatchProvider) => (
                       <a
                         key={p.provider_id}
                         href={providers?.link || '#'}
@@ -315,7 +315,7 @@ export default function MovieDetailPage({ params }: MovieDetailPageProps) {
           <section className="mb-20">
             <h2 className="text-xl md:text-3xl font-black text-white mb-6 tracking-tight">Leading Cast</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
-              {movie!.cast.map(actor => (
+              {movie!.cast.map((actor: { id: number; name: string; character: string; profilePath: string }) => (
                 <div key={actor.id} className="bg-white/[0.02] border border-white/[0.06] hover:border-white/15 p-2.5 rounded-2xl transition-all duration-300 shadow-md group/cast text-center">
                   <div className="relative h-44 mb-3.5 rounded-xl overflow-hidden bg-white/[0.02]">
                     <Image src={actor.profilePath} alt={actor.name} fill className="object-cover transition-transform duration-500 group-hover/cast:scale-105" sizes="200px" />
