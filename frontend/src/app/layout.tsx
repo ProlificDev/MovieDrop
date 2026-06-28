@@ -1,10 +1,19 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import SignInReminder from '@/components/SignInReminder';
+
+// ponytail: next/font inlines font CSS at build time — eliminates render-blocking
+// request and FOUT that caused CLS 0.295
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-plus-jakarta',
+  display: 'swap',
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -32,7 +41,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={plusJakarta.variable}>
       <body className="antialiased min-h-screen relative overflow-x-hidden text-center transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
           <AuthProvider>

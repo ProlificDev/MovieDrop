@@ -18,7 +18,7 @@ const nextConfig = {
               "img-src 'self' data: blob: https://image.tmdb.org https://images.unsplash.com https://picsum.photos https://i.ytimg.com https://lh3.googleusercontent.com",
               "frame-src https://www.youtube.com https://checkout.paystack.com",
               "connect-src 'self' https://*.supabase.co https://moviedrop-backend.onrender.com https://moviedrop.site https://www.moviedrop.site",
-              "font-src 'self'",
+              "font-src 'self' https://fonts.gstatic.com",
             ].join('; '),
           },
         ],
