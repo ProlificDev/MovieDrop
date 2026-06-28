@@ -103,14 +103,14 @@ export default function MovieCard({
             
             <Link href={`/movies/${movie.id}`} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="group/poster block relative">
               <div className="relative w-80 h-[480px] rounded-2xl overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] border border-white/[0.12] transition-all duration-500 group-hover/poster:scale-[1.03] group-hover/poster:-rotate-2 group-hover/poster:shadow-[0_30px_70px_-10px_rgba(255,0,110,0.25)]">
-                <Image
-                  src={movie.posterPath}
-                  alt={movie.title}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover/poster:scale-105"
-                  sizes="(max-width: 1024px) 100vw, 400px"
-                  priority
-                />
+          <Image
+            src={movie.posterPath}
+            alt={movie.title}
+            fill
+            className="object-cover transition-transform duration-700 group-hover/poster:scale-105"
+            sizes="320px"
+            // ponytail: poster is hidden on mobile (lg:flex), fixed 320px width on desktop
+          />
                 
                 {/* Micro-glow frame shine overlay */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 opacity-0 group-hover/poster:opacity-100 transition-opacity duration-500" />
@@ -136,7 +136,7 @@ export default function MovieCard({
             alt={movie.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="192px"
           />
 
           {/* Hover overlay */}
