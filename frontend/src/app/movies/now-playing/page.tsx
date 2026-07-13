@@ -6,6 +6,7 @@ export const revalidate = 3600;
 export const metadata = {
   title: 'Now Playing Movies | MovieDrop',
   description: 'Browse all movies currently playing in theaters.',
+  alternates: { canonical: '/movies/now-playing' },
 };
 
 export default async function NowPlayingPage() {

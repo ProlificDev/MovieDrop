@@ -6,6 +6,7 @@ export const revalidate = 3600;
 export const metadata = {
   title: 'Top Rated Movies | MovieDrop',
   description: 'Browse the highest rated movies.',
+  alternates: { canonical: '/movies/top-rated' },
 };
 
 export default async function TopRatedPage() {

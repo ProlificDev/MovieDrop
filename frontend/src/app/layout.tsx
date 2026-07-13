@@ -21,6 +21,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://moviedrop.site'),
   title: 'MovieDrop - Never Miss a Release',
   description: 'Browse now-playing movies, track upcoming releases, and get notified before they hit theatres. No account needed.',
   keywords: 'movies, upcoming movies, movie notifications, cinema, movie tracker',
@@ -29,6 +30,14 @@ export const metadata: Metadata = {
     icon: '/icon.png',
     shortcut: '/icon.png',
     apple: '/icon.png',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
   },
 };
 

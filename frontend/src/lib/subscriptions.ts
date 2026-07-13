@@ -1,22 +1,25 @@
 import { getCurrentPlan } from './plan';
+import { supabase } from './supabase';
 
-const ANON_KEY = 'moviepulse_anonymous_id';
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
-export function getAnonymousId(): string {
-  if (typeof window === 'undefined') return '';
-  let id = localStorage.getItem(ANON_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(ANON_KEY, id);
-  }
-  return id;
+export async function getUserId(): Promise<string> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user?.id) return session.user.id;
+  throw new Error('Not authenticated');
+}
+
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) throw new Error('Not authenticated');
+  return { Authorization: `Bearer ${session.access_token}` };
 }
 
 export async function checkSubscription(movieId: number) {
-  const anonId = getAnonymousId();
+  const headers = await getAuthHeaders();
   const res = await fetch(
-    `${API_BASE}/api/v1/subscriptions/check?anonymous_id=${anonId}&movie_id=${movieId}`
+    `${API_BASE}/api/v1/subscriptions/check?movie_id=${movieId}`,
+    { headers },
   );
   if (!res.ok) return { subscribed: false, subscription: null };
   return res.json();
@@ -27,13 +30,12 @@ export async function subscribe(
   notifyDaysBefore: number[],
   email?: string,
 ) {
-  const anonId = getAnonymousId();
+  const headers = await getAuthHeaders();
   const plan = getCurrentPlan();
   const res = await fetch(`${API_BASE}/api/v1/subscriptions`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...headers },
     body: JSON.stringify({
-      anonymous_id: anonId,
       movie_id: movieId,
       notify_days_before: notifyDaysBefore,
       plan,
@@ -49,20 +51,21 @@ export async function subscribe(
 }
 
 export async function unsubscribe(movieId: number) {
-  const anonId = getAnonymousId();
+  const headers = await getAuthHeaders();
   const res = await fetch(`${API_BASE}/api/v1/subscriptions`, {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ anonymous_id: anonId, movie_id: movieId }),
+    headers: { 'Content-Type': 'application/json', ...headers },
+    body: JSON.stringify({ movie_id: movieId }),
   });
   if (!res.ok) throw new Error('Unsubscribe failed');
   return res.json();
 }
 
 export async function countSubscriptions(): Promise<number> {
-  const anonId = getAnonymousId();
+  const headers = await getAuthHeaders();
   const res = await fetch(
-    `${API_BASE}/api/v1/subscriptions/all?anonymous_id=${anonId}`
+    `${API_BASE}/api/v1/subscriptions/all`,
+    { headers },
   );
   if (!res.ok) return 0;
   const data = await res.json();
@@ -70,9 +73,10 @@ export async function countSubscriptions(): Promise<number> {
 }
 
 export async function getAllSubscriptions(): Promise<any[]> {
-  const anonId = getAnonymousId();
+  const headers = await getAuthHeaders();
   const res = await fetch(
-    `${API_BASE}/api/v1/subscriptions/all?anonymous_id=${anonId}`
+    `${API_BASE}/api/v1/subscriptions/all`,
+    { headers },
   );
   if (!res.ok) return [];
   const data = await res.json();

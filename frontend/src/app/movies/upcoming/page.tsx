@@ -6,6 +6,7 @@ export const revalidate = 3600;
 export const metadata = {
   title: 'Upcoming Movies | MovieDrop',
   description: 'Browse all upcoming movie releases.',
+  alternates: { canonical: '/movies/upcoming' },
 };
 
 export default async function UpcomingPage() {

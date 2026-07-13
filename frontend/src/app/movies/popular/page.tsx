@@ -6,6 +6,7 @@ export const revalidate = 3600;
 export const metadata = {
   title: 'Popular Movies | MovieDrop',
   description: 'Browse the most popular movies.',
+  alternates: { canonical: '/movies/popular' },
 };
 
 export default async function PopularPage() {

@@ -35,12 +35,25 @@ export default function NotificationsPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (user) {
-      getAllSubscriptions().then(data => {
-        setSubs(data);
-        setLoading(false);
-      }).catch(() => setLoading(false));
+    let cancelled = false;
+
+    if (!user) {
+      setSubs([]);
+      setLoading(false);
+      return;
     }
+
+    setSubs([]);
+    setLoading(true);
+    getAllSubscriptions().then(data => {
+      if (!cancelled) setSubs(data);
+    }).catch(() => {
+      if (!cancelled) setSubs([]);
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+
+    return () => { cancelled = true; };
   }, [user]);
 
   function showToast(msg: string) {

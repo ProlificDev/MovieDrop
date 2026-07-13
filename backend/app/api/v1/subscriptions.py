@@ -2,8 +2,9 @@ import logging
 from uuid import UUID
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Request
-from app.main import limiter
+from app.main import limiter, settings
 from pydantic import BaseModel, EmailStr, field_validator
+from supabase import create_client
 
 logger = logging.getLogger("moviepulse.api.subscriptions")
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
@@ -13,7 +14,6 @@ PLAN_LIMITS = {"free": 5, "basic": None, "pro": None}  # None = unlimited
 
 
 class SubscribeRequest(BaseModel):
-    anonymous_id: str
     movie_id: int
     notify_days_before: list[int]
     plan: str = "free"
@@ -45,22 +45,33 @@ class SubscribeRequest(BaseModel):
 
 
 class UnsubscribeRequest(BaseModel):
-    anonymous_id: str
     movie_id: int
 
 
-def _parse_uuid(value: str) -> UUID:
+def _authenticated_user_id(request: Request) -> UUID:
+    authorization = request.headers.get("authorization", "")
+    scheme, _, token = authorization.partition(" ")
+    if scheme.lower() != "bearer" or not token:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+
+    if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY:
+        logger.error("Supabase credentials are not configured for authentication.")
+        raise HTTPException(status_code=503, detail="Authentication is unavailable.")
+
     try:
-        return UUID(value)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid anonymous_id format.")
+        response = create_client(
+            settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY
+        ).auth.get_user(token)
+        return UUID(str(response.user.id))
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired session.")
 
 
 @router.post("", status_code=201)
 @limiter.limit("20/minute")
 async def subscribe(request: Request, body: SubscribeRequest):
     from app.services.subscriptions import SubscriptionService
-    anon_id = _parse_uuid(body.anonymous_id)
+    anon_id = _authenticated_user_id(request)
     svc = SubscriptionService()
 
     # Enforce plan limits server-side (never trust client-sent plan)
@@ -105,27 +116,27 @@ async def subscribe(request: Request, body: SubscribeRequest):
 
 
 @router.delete("", status_code=200)
-async def unsubscribe(body: UnsubscribeRequest):
+async def unsubscribe(request: Request, body: UnsubscribeRequest):
     from app.services.subscriptions import SubscriptionService
-    anon_id = _parse_uuid(body.anonymous_id)
+    anon_id = _authenticated_user_id(request)
     svc = SubscriptionService()
     await svc.unsubscribe(anon_id, body.movie_id)
     return {"status": "success"}
 
 
 @router.get("/check", status_code=200)
-async def check_subscription(anonymous_id: str, movie_id: int):
+async def check_subscription(request: Request, movie_id: int):
     from app.services.subscriptions import SubscriptionService
-    anon_id = _parse_uuid(anonymous_id)
+    anon_id = _authenticated_user_id(request)
     svc = SubscriptionService()
     sub = await svc.get_subscription(anon_id, movie_id)
     return {"subscribed": sub is not None, "subscription": sub}
 
 
 @router.get("/all", status_code=200)
-async def get_all_subscriptions(anonymous_id: str):
+async def get_all_subscriptions(request: Request):
     from app.services.subscriptions import SubscriptionService
-    anon_id = _parse_uuid(anonymous_id)
+    anon_id = _authenticated_user_id(request)
     svc = SubscriptionService()
     subs = await svc.get_all_subscriptions(anon_id)
     return {"status": "success", "count": len(subs), "subscriptions": subs}
