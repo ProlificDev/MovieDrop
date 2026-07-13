@@ -1,17 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const code = searchParams.get('code');
+    const code = new URLSearchParams(window.location.search).get('code');
 
     if (!code) {
       setError('The sign-in link is missing its authorization code.');
@@ -27,7 +26,7 @@ export default function AuthCallbackPage() {
       router.replace('/notifications');
       router.refresh();
     });
-  }, [router, searchParams]);
+  }, [router]);
 
   return (
     <main className="min-h-screen bg-[#06040d] flex items-center justify-center px-4 text-center text-[#f1ecfa]">
