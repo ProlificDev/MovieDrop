@@ -23,7 +23,8 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      router.replace('/notifications');
+      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      router.replace(redirect ? redirect : '/');
       router.refresh();
     });
   }, [router]);
