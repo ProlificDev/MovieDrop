@@ -62,31 +62,44 @@ export async function countSubscriptions(): Promise<number> {
   return count ?? 0;
 }
 
-// ── Write operations — still go through backend (validation + email send) ─
+// ── Write operations ──────────────────────────────────────────────────────
 
 export async function subscribe(
   movieId: number,
   notifyDaysBefore: number[],
   email?: string,
 ) {
-  const headers = await getAuthHeaders();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user?.id) throw new Error('Not authenticated');
+
   const plan = getCurrentPlan();
-  const res = await fetch(`${API_BASE}/api/v1/subscriptions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...headers },
-    body: JSON.stringify({
+
+  // Write directly to Supabase — instant, no cold start
+  const { error } = await supabase
+    .from('guest_subscriptions')
+    .upsert({
+      anonymous_id: session.user.id,
       movie_id: movieId,
       notify_days_before: notifyDaysBefore,
       plan,
-      email: email || null,
+      email: email ?? null,
       push_subscription: null,
-    }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail ?? 'Subscription failed');
+    }, { onConflict: 'anonymous_id,movie_id' });
+
+  if (error) throw new Error(error.message ?? 'Subscription failed');
+
+  // Fire-and-forget confirmation email via backend (non-blocking)
+  // ponytail: if Render is cold, the email may be delayed — subscription is already saved
+  if (email) {
+    const headers: HeadersInit = { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` };
+    fetch(`${API_BASE}/api/v1/subscriptions`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ movie_id: movieId, notify_days_before: notifyDaysBefore, plan, email, push_subscription: null }),
+    }).catch(() => { /* email failed silently — subscription already saved */ });
   }
-  return res.json();
+
+  return { status: 'success' };
 }
 
 export async function unsubscribe(movieId: number) {
