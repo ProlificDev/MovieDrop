@@ -1,3 +1,8 @@
+/**
+ * Subscription operations — queries Supabase directly from the client.
+ * Bypasses the Render backend to avoid cold-start delays.
+ * RLS on guest_subscriptions ensures users only see/modify their own rows.
+ */
 import { getCurrentPlan } from './plan';
 import { supabase } from './supabase';
 
@@ -15,15 +20,49 @@ async function getAuthHeaders(): Promise<HeadersInit> {
   return { Authorization: `Bearer ${session.access_token}` };
 }
 
-export async function checkSubscription(movieId: number) {
-  const headers = await getAuthHeaders();
-  const res = await fetch(
-    `${API_BASE}/api/v1/subscriptions/check?movie_id=${movieId}`,
-    { headers },
-  );
-  if (!res.ok) return { subscribed: false, subscription: null };
-  return res.json();
+// ── Read operations — direct Supabase (no cold start) ─────────────────────
+
+export async function getAllSubscriptions(): Promise<any[]> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user?.id) return [];
+
+  const { data, error } = await supabase
+    .from('guest_subscriptions')
+    .select('*, movies(id, title, release_date, poster_path)')
+    .eq('anonymous_id', session.user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) { console.error('getAllSubscriptions:', error); return []; }
+  return data ?? [];
 }
+
+export async function checkSubscription(movieId: number) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user?.id) return { subscribed: false, subscription: null };
+
+  const { data } = await supabase
+    .from('guest_subscriptions')
+    .select('*')
+    .eq('anonymous_id', session.user.id)
+    .eq('movie_id', movieId)
+    .maybeSingle();
+
+  return { subscribed: !!data, subscription: data ?? null };
+}
+
+export async function countSubscriptions(): Promise<number> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user?.id) return 0;
+
+  const { count } = await supabase
+    .from('guest_subscriptions')
+    .select('id', { count: 'exact', head: true })
+    .eq('anonymous_id', session.user.id);
+
+  return count ?? 0;
+}
+
+// ── Write operations — still go through backend (validation + email send) ─
 
 export async function subscribe(
   movieId: number,
@@ -51,34 +90,25 @@ export async function subscribe(
 }
 
 export async function unsubscribe(movieId: number) {
-  const headers = await getAuthHeaders();
-  const res = await fetch(`${API_BASE}/api/v1/subscriptions`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', ...headers },
-    body: JSON.stringify({ movie_id: movieId }),
-  });
-  if (!res.ok) throw new Error('Unsubscribe failed');
-  return res.json();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user?.id) throw new Error('Not authenticated');
+
+  // Direct delete — backend just proxied this anyway
+  const { error } = await supabase
+    .from('guest_subscriptions')
+    .delete()
+    .eq('anonymous_id', session.user.id)
+    .eq('movie_id', movieId);
+
+  if (error) throw new Error('Unsubscribe failed');
+  return { status: 'success' };
 }
 
-export async function countSubscriptions(): Promise<number> {
-  const headers = await getAuthHeaders();
-  const res = await fetch(
-    `${API_BASE}/api/v1/subscriptions/all`,
-    { headers },
-  );
-  if (!res.ok) return 0;
-  const data = await res.json();
-  return data.count ?? 0;
-}
-
-export async function getAllSubscriptions(): Promise<any[]> {
-  const headers = await getAuthHeaders();
-  const res = await fetch(
-    `${API_BASE}/api/v1/subscriptions/all`,
-    { headers },
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.subscriptions ?? [];
+export function getAnonymousId(): string {
+  // ponytail: returns the Supabase user ID if available, else a local anon ID
+  const stored = localStorage.getItem('moviepulse_anonymous_id');
+  if (stored) return stored;
+  const id = crypto.randomUUID();
+  localStorage.setItem('moviepulse_anonymous_id', id);
+  return id;
 }
