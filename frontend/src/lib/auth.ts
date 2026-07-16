@@ -1,11 +1,10 @@
 import { supabase } from './supabase';
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(redirectAfter = '/') {
+  const callbackUrl = `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectAfter)}`;
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
-    },
+    options: { redirectTo: callbackUrl },
   });
   if (error) throw error;
 }
