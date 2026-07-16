@@ -1,36 +1,25 @@
--- Guest notification subscriptions (no auth required)
--- anonymous_id is generated client-side and stored in localStorage
+-- Phase 4: RLS policies for guest_subscriptions
+-- Required so the frontend can write directly to Supabase (bypassing Render backend)
+-- anonymous_id is stored as text but compared to auth.uid() (uuid) so cast is needed
 
-create table if not exists public.guest_subscriptions (
-    id uuid default gen_random_uuid() primary key,
-    anonymous_id uuid not null,
-    movie_id bigint references public.movies(id) on delete cascade not null,
-    email text,
-    push_subscription jsonb,
-    notify_days_before integer[] default '{0,1,7}'::integer[] not null,
-    plan text not null default 'free' check (plan in ('free','basic','pro')),
-    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-    constraint unique_guest_movie unique (anonymous_id, movie_id)
-);
+drop policy if exists "Users can read own subscriptions" on public.guest_subscriptions;
+drop policy if exists "Users can insert own subscriptions" on public.guest_subscriptions;
+drop policy if exists "Users can update own subscriptions" on public.guest_subscriptions;
+drop policy if exists "Users can delete own subscriptions" on public.guest_subscriptions;
 
-create index if not exists idx_guest_subs_anonymous_id on public.guest_subscriptions (anonymous_id);
-create index if not exists idx_guest_subs_movie_id on public.guest_subscriptions (movie_id);
+create policy "Users can read own subscriptions"
+on public.guest_subscriptions for select to authenticated
+using (anonymous_id::uuid = auth.uid());
 
--- Notifications sent log for guests
-create table if not exists public.guest_notifications_log (
-    id uuid default gen_random_uuid() primary key,
-    anonymous_id uuid not null,
-    movie_id bigint references public.movies(id) on delete cascade not null,
-    channel text not null check (channel in ('email','push')),
-    days_before integer not null,
-    sent_at timestamp with time zone default timezone('utc'::text, now()) not null,
-    status text not null check (status in ('sent','failed')),
-    error_message text
-);
+create policy "Users can insert own subscriptions"
+on public.guest_subscriptions for insert to authenticated
+with check (anonymous_id::uuid = auth.uid());
 
-create index if not exists idx_guest_notif_log_anon on public.guest_notifications_log (anonymous_id);
+create policy "Users can update own subscriptions"
+on public.guest_subscriptions for update to authenticated
+using (anonymous_id::uuid = auth.uid())
+with check (anonymous_id::uuid = auth.uid());
 
--- RLS: backend uses service role key so it bypasses RLS
--- Frontend never touches these tables directly
-alter table public.guest_subscriptions enable row level security;
-alter table public.guest_notifications_log enable row level security;
+create policy "Users can delete own subscriptions"
+on public.guest_subscriptions for delete to authenticated
+using (anonymous_id::uuid = auth.uid());
