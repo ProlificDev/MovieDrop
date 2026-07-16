@@ -11,11 +11,19 @@ export default function LoginPage() {
   async function handleGoogleSignIn() {
     setLoading(true);
     try {
+      // Preserve redirect target from middleware (/login?redirect=/)
+      const url = new URL(window.location.href);
+      const redirectTo = url.searchParams.get('redirect') || '/';
+
+      // signInWithGoogle currently uses /auth/callback as redirectTo.
+      // We pass the final redirect target via query param for the callback to read.
+      window.location.href = `/auth/callback?redirect=${encodeURIComponent(redirectTo)}`;
       await signInWithGoogle();
     } catch {
       setLoading(false);
     }
   }
+
 
   return (
     <div className="bg-[#06040d] min-h-screen flex items-center justify-center px-4">
