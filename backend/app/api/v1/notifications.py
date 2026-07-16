@@ -9,16 +9,17 @@ logger = logging.getLogger("moviedrop.api.notifications")
 router = APIRouter(prefix="/notifications", tags=["Notifications"])
 
 CRON_SECRET = getattr(settings, "CRON_SECRET", "")
+# Max days ahead to check for upcoming releases
+NOTIFY_WINDOW_DAYS = 14
 
 
 @router.post("/send", status_code=200)
 async def send_notifications(request: Request, x_cron_secret: str = Header(default="")):
     """
     Triggered daily by cron-job.org.
-    Loops through all subscriptions and sends email notifications
-    for movies releasing on the configured notify_days_before offsets.
+    Fetches all subscriptions with movies releasing within the next NOTIFY_WINDOW_DAYS days,
+    then sends emails where today matches a user's notify_days_before offset.
     """
-    # Simple secret check to prevent unauthorized calls
     if CRON_SECRET and x_cron_secret != CRON_SECRET:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
@@ -26,35 +27,66 @@ async def send_notifications(request: Request, x_cron_secret: str = Header(defau
     notif = NotificationService()
     today = datetime.now(timezone.utc).date()
 
-    sent = failed = 0
+    sent = failed = skipped = 0
 
-    for days_before in range(0, 31):
-        target_date = (today + timedelta(days=days_before)).isoformat()
-        subscriptions = await svc.get_due_subscriptions(target_date)
+    # Single query: all subscriptions for movies releasing within the notify window
+    window_dates = [
+        (today + timedelta(days=d)).isoformat()
+        for d in range(0, NOTIFY_WINDOW_DAYS + 1)
+    ]
 
-        for sub in subscriptions:
-            if days_before not in sub.get("notify_days_before", []):
-                continue
+    all_subs = await svc.get_subscriptions_for_dates(window_dates)
+    logger.info(f"Found {len(all_subs)} subscriptions within {NOTIFY_WINDOW_DAYS}-day window")
 
-            movie = sub.get("movies", {})
-            movie_id = sub["movie_id"]
-            anon_id = sub["anonymous_id"]
+    for sub in all_subs:
+        movie = sub.get("movies") or {}
+        release_date_str = movie.get("release_date")
+        if not release_date_str:
+            skipped += 1
+            continue
 
-            if sub.get("email"):
-                try:
-                    await notif.send_email(
-                        to_email=sub["email"],
-                        movie_title=movie.get("title", "Unknown"),
-                        release_date=target_date,
-                        days_before=days_before,
-                        movie_id=movie_id,
-                        poster_path=movie.get("poster_path"),
-                    )
-                    await svc.log_notification(anon_id, movie_id, "email", days_before, "sent")
-                    sent += 1
-                except Exception as e:
-                    await svc.log_notification(anon_id, movie_id, "email", days_before, "failed", str(e))
-                    failed += 1
+        try:
+            release_date = datetime.fromisoformat(release_date_str).date()
+        except ValueError:
+            skipped += 1
+            continue
 
-    logger.info(f"Notifications sent={sent} failed={failed}")
-    return {"status": "success", "sent": sent, "failed": failed, "date": today.isoformat()}
+        days_before = (release_date - today).days
+
+        # Only notify if this offset matches what the user configured
+        if days_before not in sub.get("notify_days_before", []):
+            skipped += 1
+            continue
+
+        email = sub.get("email")
+        movie_id = sub["movie_id"]
+        anon_id = sub["anonymous_id"]
+
+        if not email:
+            skipped += 1
+            continue
+
+        try:
+            await notif.send_email(
+                to_email=email,
+                movie_title=movie.get("title", "Unknown"),
+                release_date=release_date_str,
+                days_before=days_before,
+                movie_id=movie_id,
+                poster_path=movie.get("poster_path"),
+            )
+            await svc.log_notification(anon_id, movie_id, "email", days_before, "sent")
+            sent += 1
+        except Exception as e:
+            logger.error(f"Email failed for {email} movie {movie_id}: {e}")
+            await svc.log_notification(anon_id, movie_id, "email", days_before, "failed", str(e))
+            failed += 1
+
+    logger.info(f"Notifications: sent={sent} failed={failed} skipped={skipped}")
+    return {
+        "status": "success",
+        "sent": sent,
+        "failed": failed,
+        "skipped": skipped,
+        "date": today.isoformat(),
+    }

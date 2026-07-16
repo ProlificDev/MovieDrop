@@ -81,6 +81,20 @@ class SubscriptionService:
         )
         return response.count or 0
 
+    async def get_subscriptions_for_dates(self, dates: list[str]) -> list[dict]:
+        """
+        Returns all subscriptions where the movie's release_date is in the given list.
+        More efficient than calling get_due_subscriptions once per date.
+        """
+        response = (
+            self.supabase.table("guest_subscriptions")
+            .select("*, movies(id, title, release_date, poster_path, overview)")
+            .in_("movies.release_date", dates)
+            .execute()
+        )
+        rows = response.data or []
+        return [r for r in rows if r.get("movies")]
+
     async def get_due_subscriptions(self, target_date: str) -> list[dict]:
         """
         Returns all subscriptions where the movie's release_date matches target_date.
@@ -89,10 +103,12 @@ class SubscriptionService:
         response = (
             self.supabase.table("guest_subscriptions")
             .select("*, movies(id, title, release_date, poster_path, overview)")
+            .eq("movies.release_date", target_date)
             .execute()
         )
         rows = response.data or []
-        return [r for r in rows if r.get("movies") and r["movies"].get("release_date") == target_date]
+        # Filter out rows where the join returned no matching movie
+        return [r for r in rows if r.get("movies")]
 
     async def log_notification(
         self,
