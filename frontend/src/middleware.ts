@@ -1,3 +1,12 @@
-// Middleware intentionally empty — browsing is public.
-// Auth is handled client-side in components that require it (e.g. NotificationButton).
-export { } from 'next/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+// Browsing is public — no server-side auth gating needed.
+// Auth is handled client-side by components that require it.
+export function middleware(_req: NextRequest) {
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [],
+};
