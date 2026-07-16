@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import MovieCard from '@/components/MovieCard';
 import ScrollableRow from '@/components/ScrollableRow';
 import { Movie } from '@/lib/mockMovies';
 import { getLiveMoviesByCategory } from '@/lib/movies';
+import { useAuth } from '@/components/AuthProvider';
 import { Loader2, Bell, Mail, Film, Zap, Clock } from 'lucide-react';
 
 const GENRES = [
@@ -75,9 +77,18 @@ function CountdownTimer({ releaseDate }: { releaseDate: string }) {
 }
 
 export default function Home() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [nowPlayingMovies, setNowPlayingMovies] = useState<Movie[]>([]);
   const [upcomingMovies, setUpcomingMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Redirect unauthenticated users to login
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace('/login?redirect=/');
+    }
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     async function loadAllMovies() {
@@ -100,6 +111,14 @@ export default function Home() {
   const featuredMovie = nowPlayingMovies[0] || upcomingMovies[0];
   // Next big release = soonest upcoming movie
   const nextRelease = upcomingMovies[0] ?? null;
+
+  if (authLoading || !user) {
+    return (
+      <div className="bg-[#06040d] min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin text-neon-pink" size={36} />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
