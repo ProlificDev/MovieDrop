@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { Check, X, Zap, Star, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/components/AuthProvider';
 
 declare global {
   interface Window {
@@ -104,9 +105,15 @@ function FeatureCell({ value }: { value: boolean | string }) {
 }
 
 export default function PricingPage() {
+  const { user } = useAuth();
   const [loadingPlan, setLoadingPlan] = React.useState<string | null>(null);
   const [email, setEmail] = React.useState('');
   const [showEmailInput, setShowEmailInput] = React.useState<string | null>(null);
+
+  // Pre-fill email from logged-in user
+  React.useEffect(() => {
+    if (user?.email) setEmail(user.email);
+  }, [user]);
 
   // Load Paystack inline script
   useEffect(() => {
@@ -267,11 +274,19 @@ export default function PricingPage() {
                 </div>
               ) : (
                 <button
-                  onClick={() => setShowEmailInput(plan.key)}
+                  onClick={() => {
+                    if (user?.email) {
+                      // Logged in — go straight to Paystack
+                      handlePaystack(plan.key, plan.amountKobo, plan.name);
+                    } else {
+                      setShowEmailInput(plan.key);
+                    }
+                  }}
+                  disabled={loadingPlan === plan.key}
                   className={`w-full py-3 rounded-xl text-sm ${plan.btnClass}`}
                   style={(plan as any).btnStyle}
                 >
-                  {plan.btnLabel}
+                  {loadingPlan === plan.key ? 'Opening checkout...' : plan.btnLabel}
                 </button>
               )}
             </div>
