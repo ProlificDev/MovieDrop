@@ -54,12 +54,15 @@ export async function countSubscriptions(): Promise<number> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user?.id) return 0;
 
-  const { count } = await supabase
-    .from('guest_subscriptions')
-    .select('id', { count: 'exact', head: true })
-    .eq('anonymous_id', session.user.id);
+  // Use lifetime count — never decrements on delete, so free users
+  // can't game the limit by deleting and re-adding movies
+  const { data } = await supabase
+    .from('subscription_quota')
+    .select('lifetime_count')
+    .eq('user_id', session.user.id)
+    .maybeSingle();
 
-  return count ?? 0;
+  return data?.lifetime_count ?? 0;
 }
 
 // ── Write operations ──────────────────────────────────────────────────────
