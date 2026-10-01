@@ -9,8 +9,16 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 /**
  * Browser-side Supabase client.
+ *
  * Uses @supabase/ssr's createBrowserClient so that auth tokens are stored in
- * cookies (not just localStorage). This allows the session to be read by
- * server components and avoids a flash of unauthenticated UI on page load.
+ * cookies (in addition to localStorage). This lets the session survive SSR
+ * page loads without a flash of unauthenticated content.
+ *
+ * flowType: 'pkce' matches the Supabase project's Auth > Flow type setting.
+ * If your project uses Implicit flow, change this to 'implicit'.
  */
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    flowType: 'pkce',
+  },
+});

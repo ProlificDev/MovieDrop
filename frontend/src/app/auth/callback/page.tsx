@@ -10,23 +10,49 @@ export default function AuthCallbackPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get('code');
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const errorParam = params.get('error');
+    const errorDescription = params.get('error_description');
 
-    if (!code) {
-      setError('The sign-in link is missing its authorization code.');
+    // OAuth provider returned an explicit error
+    if (errorParam) {
+      setError(errorDescription ?? 'Sign-in was denied or an error occurred.');
       return;
     }
 
-    supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
-      if (exchangeError) {
-        setError('We could not complete sign-in. Please try again.');
-        return;
-      }
+    const redirect = params.get('redirect') ?? '/';
 
-      const redirect = new URLSearchParams(window.location.search).get('redirect');
-      router.replace(redirect ? redirect : '/');
-      router.refresh();
-    });
+    // ── PKCE flow: ?code= is present ──────────────────────────────────────
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
+        if (exchangeError) {
+          console.error('exchangeCodeForSession error:', exchangeError.message);
+          setError('We could not complete sign-in. Please try again.');
+          return;
+        }
+        router.replace(redirect);
+        router.refresh();
+      });
+      return;
+    }
+
+    // ── Implicit flow: session arrives in the URL hash fragment ───────────
+    // Supabase's onAuthStateChange fires automatically when the hash contains
+    // access_token, so we just need to wait for the session to be set.
+    if (window.location.hash.includes('access_token')) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          subscription.unsubscribe();
+          router.replace(redirect);
+          router.refresh();
+        }
+      });
+      return;
+    }
+
+    // No code and no hash — nothing to exchange
+    setError('The sign-in link is missing its authorization code. Please try signing in again.');
   }, [router]);
 
   return (
