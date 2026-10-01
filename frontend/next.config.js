@@ -33,7 +33,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https://image.tmdb.org https://images.unsplash.com https://picsum.photos https://i.ytimg.com https://lh3.googleusercontent.com",
               "frame-src https://www.youtube.com https://checkout.paystack.com",
-              "connect-src 'self' https://*.supabase.co https://moviedrop-backend.onrender.com https://moviedrop.site https://www.moviedrop.site",
+              "connect-src 'self' https://*.supabase.co https://moviedrop-backend.onrender.com https://moviedrop.site https://www.moviedrop.site https://accounts.google.com",
               "font-src 'self' https://fonts.gstatic.com",
             ].join('; '),
           },
@@ -64,6 +64,12 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'i.ytimg.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
         port: '',
         pathname: '/**',
       },

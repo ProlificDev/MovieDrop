@@ -7,14 +7,17 @@ import Image from 'next/image';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleGoogleSignIn() {
     setLoading(true);
+    setError(null);
     try {
       const redirectParam = new URL(window.location.href).searchParams.get('redirect') || '/';
       await signInWithGoogle(redirectParam);
-    } catch {
+    } catch (err) {
       setLoading(false);
+      setError(err instanceof Error ? err.message : 'Could not start sign-in. Please try again.');
     }
   }
 
@@ -61,6 +64,12 @@ export default function LoginPage() {
             )}
             {loading ? 'Signing in...' : 'Continue with Google'}
           </button>
+
+          {error && (
+            <p role="alert" className="text-xs text-red-400 text-center mt-4">
+              {error}
+            </p>
+          )}
 
           <p className="text-xs text-gray-600 text-center mt-6">
             By signing in you agree to our terms. Browsing is always free.
