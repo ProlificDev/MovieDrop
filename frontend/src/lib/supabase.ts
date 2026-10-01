@@ -1,4 +1,4 @@
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
@@ -8,17 +8,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 /**
- * Browser-side Supabase client.
+ * Browser-side Supabase client using implicit flow.
  *
- * Uses @supabase/ssr's createBrowserClient so that auth tokens are stored in
- * cookies (in addition to localStorage). This lets the session survive SSR
- * page loads without a flash of unauthenticated content.
+ * Implicit flow returns the session token directly in the URL hash after the
+ * OAuth redirect — no code_verifier storage required. This avoids the
+ * "PKCE code verifier not found in storage" error that occurs in SSR/edge
+ * environments where cookie storage isn't reliably available during the
+ * OAuth round-trip.
  *
- * flowType: 'pkce' matches the Supabase project's Auth > Flow type setting.
- * If your project uses Implicit flow, change this to 'implicit'.
+ * The Supabase project's Auth > Flow type must also be set to "Implicit"
+ * in the dashboard for this to work end-to-end.
  */
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    flowType: 'pkce',
+    flowType: 'implicit',
   },
 });

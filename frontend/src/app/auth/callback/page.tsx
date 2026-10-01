@@ -11,9 +11,9 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
     const errorParam = params.get('error');
     const errorDescription = params.get('error_description');
+    const redirect = params.get('redirect') ?? '/';
 
     // OAuth provider returned an explicit error
     if (errorParam) {
@@ -21,38 +21,29 @@ export default function AuthCallbackPage() {
       return;
     }
 
-    const redirect = params.get('redirect') ?? '/';
-
-    // ── PKCE flow: ?code= is present ──────────────────────────────────────
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
-        if (exchangeError) {
-          console.error('exchangeCodeForSession error:', exchangeError.message);
-          setError('We could not complete sign-in. Please try again.');
-          return;
-        }
+    // Implicit flow: Supabase returns the session in the URL hash fragment
+    // (#access_token=...). createClient detects and stores this automatically
+    // via onAuthStateChange. We just wait for SIGNED_IN and then navigate.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        subscription.unsubscribe();
         router.replace(redirect);
         router.refresh();
-      });
-      return;
-    }
+      }
+      // If the hash was absent or invalid, Supabase fires no event.
+      // Fall through to the timeout below.
+    });
 
-    // ── Implicit flow: session arrives in the URL hash fragment ───────────
-    // Supabase's onAuthStateChange fires automatically when the hash contains
-    // access_token, so we just need to wait for the session to be set.
-    if (window.location.hash.includes('access_token')) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          subscription.unsubscribe();
-          router.replace(redirect);
-          router.refresh();
-        }
-      });
-      return;
-    }
+    // Safety timeout — if no SIGNED_IN fires within 8 seconds, show an error.
+    const timeout = setTimeout(() => {
+      subscription.unsubscribe();
+      setError('We could not complete sign-in. Please try again.');
+    }, 8000);
 
-    // No code and no hash — nothing to exchange
-    setError('The sign-in link is missing its authorization code. Please try signing in again.');
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, [router]);
 
   return (
